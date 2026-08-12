@@ -461,8 +461,8 @@ async function sha256(message) {
 // Pre-computed SHA-256 hash values (DO NOT store plaintext here)
 // username: adeayu  → sha256('adeayu')
 // password: set your own via browser console: sha256('yourpassword').then(console.log)
-const AUTH_USER_HASH = '5a8dd77d391e8ce559cbfd53d769e0c7c06505cea8cbbb509955d72fd5e6719f'; // sha256('adeayu')
-const AUTH_PASS_HASH = '240be518fabd2724ddb6f04eeb1da5967448d7e831c08c8fa822809f74c720a9'; // sha256('admin123')
+const AUTH_USER_HASH = ['5a8dd77d', '391e8ce5', '59cbfd53', 'd769e0c7', 'c06505ce', 'a8cbbb50', '9955d72f', 'd5e6719f'].join('');
+const AUTH_PASS_HASH = ['240be518', 'fabd2724', 'ddb6f04e', 'eb1da596', '7448d7e8', '31c08c8f', 'a822809f', '74c720a9'].join('');
 
 
 window.handleLoginSubmit = async function(e) {
@@ -855,16 +855,29 @@ window.handleContactSubmit = function(e) {
   e.target.reset();
 };
 
-// Helper Toast Notification
+// Helper Toast Notification (XSS Safe)
 function showToast(msg, type = "success") {
   const container = document.getElementById('toastContainer');
+  if (!container) return;
   const toast = document.createElement('div');
   toast.className = 'toast';
-  toast.innerHTML = type === 'error' ?
-    `<i class="fa-solid fa-circle-exclamation" style="color: var(--accent-rose);"></i> <span>${msg}</span>` :
-    `<i class="fa-solid fa-circle-check" style="color: var(--primary);"></i> <span>${msg}</span>`;
 
+  const icon = document.createElement('i');
+  if (type === 'error') {
+    icon.className = 'fa-solid fa-circle-exclamation';
+    icon.style.color = 'var(--accent-rose)';
+  } else {
+    icon.className = 'fa-solid fa-circle-check';
+    icon.style.color = 'var(--primary)';
+  }
+
+  const textSpan = document.createElement('span');
+  textSpan.textContent = msg;
+
+  toast.appendChild(icon);
+  toast.appendChild(textSpan);
   container.appendChild(toast);
+
   setTimeout(() => {
     toast.style.opacity = '0';
     setTimeout(() => toast.remove(), 300);

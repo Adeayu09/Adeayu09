@@ -993,29 +993,25 @@ window.runWrfSimulationAnimation = function() {
     drawWrfGeographicMap(ctx, canvas, scenario);
 
     // Source Emission Emitter (Origin Beacon on Map)
-    let sourceX = 140;
-    let sourceY = canvas.height / 2 + 10;
-    let sourceName = 'Pekanbaru / Riau Origin (101.4°E, 0.5°N)';
+    let sourceX = 185;
+    let sourceY = 185;
+    let sourceName = 'Riau Emission Origin (Pekanbaru 101.4°E, 0.5°N)';
 
     if (scenario === 'jakarta') {
-      sourceX = 180;
-      sourceY = canvas.height / 2 + 30;
-      sourceName = 'Jakarta Industrial / Monas Hub (106.8°E, 6.2°S)';
-    } else if (scenario === 'biochar') {
-      sourceX = 220;
-      sourceY = 120;
-      sourceName = 'NTU Biochar Lab, Taipei (121.5°E, 25.0°N)';
+      sourceX = 212;
+      sourceY = 205;
+      sourceName = 'Jakarta Monas Hub (106.8°E, 6.2°S)';
     }
 
     // Heat Gradient Rings at Source
-    const grad = ctx.createRadialGradient(sourceX, sourceY, 5, sourceX, sourceY, 120 + windSpeed * 4);
-    grad.addColorStop(0, 'rgba(244, 63, 94, 0.5)');
-    grad.addColorStop(0.4, 'rgba(245, 158, 11, 0.3)');
+    const grad = ctx.createRadialGradient(sourceX, sourceY, 5, sourceX, sourceY, 110 + windSpeed * 4);
+    grad.addColorStop(0, 'rgba(244, 63, 94, 0.55)');
+    grad.addColorStop(0.4, 'rgba(245, 158, 11, 0.35)');
     grad.addColorStop(0.7, 'rgba(16, 185, 129, 0.15)');
     grad.addColorStop(1, 'rgba(6, 17, 13, 0)');
     ctx.fillStyle = grad;
     ctx.beginPath();
-    ctx.arc(sourceX, sourceY, 120 + windSpeed * 4, 0, Math.PI * 2);
+    ctx.arc(sourceX, sourceY, 110 + windSpeed * 4, 0, Math.PI * 2);
     ctx.fill();
 
     // Source Beacon Pulsing Point
@@ -1024,13 +1020,16 @@ window.runWrfSimulationAnimation = function() {
     ctx.arc(sourceX, sourceY, 7, 0, Math.PI * 2);
     ctx.fill();
     ctx.strokeStyle = '#ffffff';
-    ctx.lineWidth = 2;
+    ctx.lineWidth = 2.5;
     ctx.stroke();
 
-    // Text Label Source
+    // Text Label Source Origin
     ctx.fillStyle = '#ffffff';
     ctx.font = 'bold 11px sans-serif';
-    ctx.fillText(sourceName, sourceX - 40, sourceY - 14);
+    ctx.shadowColor = 'rgba(0,0,0,0.8)';
+    ctx.shadowBlur = 4;
+    ctx.fillText(sourceName, sourceX - 45, sourceY - 14);
+    ctx.shadowBlur = 0;
 
     // Draw & Update Particles
     wrfParticles.forEach((p) => {
@@ -1100,16 +1099,16 @@ function drawWrfGeographicMap(ctx, canvas, scenario) {
   // Draw Satellite Image Background if loaded
   if (scenario === 'karhutla' && mapSumatraImg.complete && mapSumatraImg.naturalWidth !== 0) {
     ctx.drawImage(mapSumatraImg, 0, 0, w, h);
-    ctx.fillStyle = 'rgba(6, 17, 13, 0.45)';
+    ctx.fillStyle = 'rgba(6, 17, 13, 0.2)';
     ctx.fillRect(0, 0, w, h);
   } else if (scenario === 'jakarta' && mapJakartaImg.complete && mapJakartaImg.naturalWidth !== 0) {
     ctx.drawImage(mapJakartaImg, 0, 0, w, h);
-    ctx.fillStyle = 'rgba(6, 17, 13, 0.45)';
+    ctx.fillStyle = 'rgba(6, 17, 13, 0.2)';
     ctx.fillRect(0, 0, w, h);
   }
 
   // Lat/Long Coordinate Grid lines
-  ctx.strokeStyle = 'rgba(16, 185, 129, 0.18)';
+  ctx.strokeStyle = 'rgba(16, 185, 129, 0.15)';
   ctx.lineWidth = 1;
   ctx.setLineDash([4, 4]);
 
@@ -1126,45 +1125,6 @@ function drawWrfGeographicMap(ctx, canvas, scenario) {
     ctx.stroke();
   }
   ctx.setLineDash([]);
-
-  if (scenario === 'karhutla') {
-    ctx.fillStyle = '#5eead4';
-    ctx.font = 'italic bold 11px sans-serif';
-    ctx.fillText('GIS Satellite Map: Riau & Sumatra Domain', 20, 25);
-
-    drawMapCity(ctx, 140, 170, 'Pekanbaru (Riau)');
-    drawMapCity(ctx, 280, 220, 'Padang');
-    drawMapCity(ctx, 420, 270, 'Palembang');
-    drawMapCity(ctx, 520, 90, 'Singapore / Johor');
-
-    ctx.fillStyle = 'rgba(167, 243, 208, 0.7)';
-    ctx.font = '9px monospace';
-    ctx.fillText('100°E', 65, 12);
-    ctx.fillText('102°E', 165, 12);
-    ctx.fillText('104°E', 265, 12);
-    ctx.fillText('106°E', 365, 12);
-    ctx.fillText('02°N', 5, 45);
-    ctx.fillText('00°N', 5, 125);
-    ctx.fillText('02°S', 5, 205);
-  } else {
-    ctx.fillStyle = '#5eead4';
-    ctx.font = 'italic bold 11px sans-serif';
-    ctx.fillText('GIS Satellite Map: Jakarta Bay & Urban Domain', 20, 25);
-
-    drawMapCity(ctx, 180, 190, 'Jakarta Pusat (Monas)');
-    drawMapCity(ctx, 240, 160, 'Tanjung Priok');
-    drawMapCity(ctx, 100, 210, 'Tangerang');
-    drawMapCity(ctx, 320, 220, 'Bekasi');
-    drawMapCity(ctx, 200, 280, 'Depok / Bogor');
-
-    ctx.fillStyle = 'rgba(167, 243, 208, 0.7)';
-    ctx.font = '9px monospace';
-    ctx.fillText('106.6°E', 65, 12);
-    ctx.fillText('106.8°E', 165, 12);
-    ctx.fillText('107.0°E', 265, 12);
-    ctx.fillText('06.0°S', 5, 45);
-    ctx.fillText('06.2°S', 5, 125);
-  }
 }
 
 function drawMapCity(ctx, x, y, name) {

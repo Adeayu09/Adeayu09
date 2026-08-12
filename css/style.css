@@ -469,18 +469,17 @@ img {
   z-index: 10;
 }
 
-.avatar-badge-float.bottom-badge {
-  bottom: 0px;
-  left: 50%;
-  transform: translateX(-50%);
+.avatar-badge-float.top-left-badge {
+  top: 0px;
+  left: 0px;
+  font-size: 0.825rem;
+  border-color: rgba(16, 185, 129, 0.45);
   animation: floatAnim 4s ease-in-out infinite;
 }
 
-.avatar-badge-float.top-right-badge {
-  top: 0px;
+.avatar-badge-float.bottom-right-badge {
+  bottom: 0px;
   right: 0px;
-  font-size: 0.825rem;
-  border-color: rgba(16, 185, 129, 0.45);
   animation: floatAnim 4s ease-in-out infinite 2s;
 }
 
@@ -489,6 +488,14 @@ img {
   grid-template-columns: 320px 1fr;
   gap: 2rem;
   align-items: start;
+}
+
+.wrf-metrics-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1rem;
+  margin-top: 1.25rem;
+  text-align: center;
 }
 
 @keyframes floatAnim {
@@ -1258,5 +1265,35 @@ textarea.form-control {
 
   .contact-grid {
     padding: 1.75rem;
+  }
+
+  .wrf-metrics-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.75rem;
+  }
+}
+
+@media (max-width: 576px) {
+  .hero-avatar-wrapper {
+    padding: 12px;
+  }
+  .avatar-card {
+    width: 270px;
+    height: 330px;
+  }
+  .avatar-badge-float {
+    padding: 0.45rem 0.85rem;
+    font-size: 0.75rem;
+  }
+  .avatar-badge-float.top-left-badge {
+    top: -5px;
+    left: -5px;
+  }
+  .avatar-badge-float.bottom-right-badge {
+    bottom: -5px;
+    right: -5px;
+  }
+  .wrf-metrics-grid {
+    grid-template-columns: 1fr;
   }
 }

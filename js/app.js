@@ -888,6 +888,7 @@ function showToast(msg, type = "success") {
 
 // ==================== WRF-CHEM INTERACTIVE SIMULATOR ENGINE ====================
 // ==================== WRF-CHEM SPATIAL CONCENTRATION ZONING ENGINE ====================
+// ==================== WRF-CHEM SPATIAL CONCENTRATION ZONING ENGINE ====================
 let wrfAnimFrame = null;
 let customSourcePoint = null;
 let isWrfSimRunning = false;
@@ -927,7 +928,6 @@ function handleMapTouch(e) {
   recalculateMetricsForPoint(x, y);
 
   if (isWrfSimRunning) {
-    // Redraw with pulse
     plumePulseOffset = 0;
   } else {
     drawConcentrationZoningMap(x, y, false);
@@ -950,12 +950,12 @@ window.updateWrfSim = function() {
   const mechBadge = document.getElementById('wrfMechBadge');
   if (mechBadge) mechBadge.textContent = `${mechanism} Mechanism`;
 
-  // Determine active beacon point
-  let ptX = 185;
-  let ptY = 185;
+  // Determine active beacon point based on proportional map coordinates (700x520)
+  let ptX = 395;
+  let ptY = 275;
   if (scenario === 'jakarta') {
-    ptX = 212;
-    ptY = 205;
+    ptX = 360;
+    ptY = 320;
   }
 
   if (customSourcePoint) {
@@ -965,7 +965,7 @@ window.updateWrfSim = function() {
 
   recalculateMetricsForPoint(ptX, ptY);
 
-  // Render static concentration zoning if not animating
+  // Render concentration zoning
   if (!isWrfSimRunning) {
     drawConcentrationZoningMap(ptX, ptY, false);
   }
@@ -977,17 +977,17 @@ function recalculateMetricsForPoint(x, y) {
   const windSpeed = parseFloat(document.getElementById('wrfWind')?.value || 8.5);
   const isEn = state.lang === 'en';
 
-  // Dynamic calculation formula based on exact map coordinates (700x320)
+  // Dynamic calculation formula based on exact map coordinates (700x520)
   const normX = x / 700;
-  const normY = y / 320;
+  const normY = y / 520;
   const distFromCenter = Math.sqrt(Math.pow(normX - 0.5, 2) + Math.pow(normY - 0.5, 2));
 
   // Dynamic Peak Concentration (µg/m³)
-  const basePeak = scenario === 'karhutla' ? 120 : 85;
-  const peak = Math.round(basePeak + (normX * 65) + (normY * 45) + (windSpeed * 4.2));
+  const basePeak = scenario === 'karhutla' ? 135 : 95;
+  const peak = Math.round(basePeak + (normX * 55) + (normY * 40) + (windSpeed * 4.2));
 
   // Dynamic Dispersion Radius (km)
-  const radius = ((windSpeed * 4.5) + (distFromCenter * 22)).toFixed(1);
+  const radius = ((windSpeed * 4.8) + (distFromCenter * 24)).toFixed(1);
 
   // Dynamic AQI Index
   const aqiScore = Math.round(peak * 0.95);
@@ -1092,10 +1092,9 @@ function stopWrfSimAnimation() {
     dotOnline.style.animation = 'none';
   }
 
-  // Draw static baseline zoning map
   const scenario = document.getElementById('wrfScenario')?.value || 'karhutla';
-  let ptX = scenario === 'jakarta' ? 212 : 185;
-  let ptY = scenario === 'jakarta' ? 205 : 185;
+  let ptX = scenario === 'jakarta' ? 360 : 395;
+  let ptY = scenario === 'jakarta' ? 320 : 275;
   if (customSourcePoint) {
     ptX = customSourcePoint.x;
     ptY = customSourcePoint.y;
@@ -1118,24 +1117,24 @@ function drawConcentrationZoningMap(sourceX, sourceY, isDynamic) {
   // Wind vectors
   let dx = 1;
   let dy = -0.5;
-  if (direction === 'NE') { dx = 1.2; dy = -0.7; }
-  if (direction === 'E') { dx = 1.5; dy = 0.1; }
-  if (direction === 'SE') { dx = 1.2; dy = 0.8; }
-  if (direction === 'NW') { dx = -1.2; dy = -0.7; }
+  if (direction === 'NE') { dx = 1.1; dy = -0.65; }
+  if (direction === 'E') { dx = 1.3; dy = 0.05; }
+  if (direction === 'SE') { dx = 1.1; dy = 0.7; }
+  if (direction === 'NW') { dx = -1.1; dy = -0.65; }
 
   const angle = Math.atan2(dy, dx);
-  const pulse = isDynamic ? Math.sin(plumePulseOffset * 0.05) * 6 : 0;
+  const pulse = isDynamic ? Math.sin(plumePulseOffset * 0.05) * 8 : 0;
 
   // --- SCIENTIFIC CONCENTRATION ZONING ELLIPSES (HEATMAP CONTOURS) ---
   const zones = [
     // Zone 1: Low concentration plume buffer (< 50 µg/m³) - Emerald/Teal
-    { rx: 220 + windSpeed * 7 + pulse, ry: 95 + windSpeed * 2, color: 'rgba(16, 185, 129, 0.22)', stroke: 'rgba(16, 185, 129, 0.5)', label: '<50 µg/m³ (Baik)', distFactor: 0.85 },
+    { rx: 240 + windSpeed * 8 + pulse, ry: 105 + windSpeed * 2.2, color: 'rgba(16, 185, 129, 0.24)', stroke: 'rgba(16, 185, 129, 0.6)', label: '<50 µg/m³ (Baik)', distFactor: 0.85 },
     // Zone 2: Moderate concentration zone (50-100 µg/m³) - Yellow/Amber
-    { rx: 160 + windSpeed * 5 + pulse * 0.8, ry: 65 + windSpeed * 1.5, color: 'rgba(234, 179, 8, 0.32)', stroke: 'rgba(234, 179, 8, 0.7)', label: '50-100 µg/m³ (Sedang)', distFactor: 0.65 },
+    { rx: 170 + windSpeed * 5.5 + pulse * 0.8, ry: 75 + windSpeed * 1.6, color: 'rgba(234, 179, 8, 0.35)', stroke: 'rgba(234, 179, 8, 0.75)', label: '50-100 µg/m³ (Sedang)', distFactor: 0.65 },
     // Zone 3: High concentration zone (100-150 µg/m³) - Orange
-    { rx: 105 + windSpeed * 3 + pulse * 0.6, ry: 45 + windSpeed * 1.0, color: 'rgba(249, 115, 22, 0.45)', stroke: 'rgba(249, 115, 22, 0.85)', label: '100-150 µg/m³ (Tidak Sehat)', distFactor: 0.45 },
+    { rx: 110 + windSpeed * 3.2 + pulse * 0.6, ry: 50 + windSpeed * 1.1, color: 'rgba(249, 115, 22, 0.48)', stroke: 'rgba(249, 115, 22, 0.85)', label: '100-150 µg/m³ (Tidak Sehat)', distFactor: 0.45 },
     // Zone 4: Severe Peak Core (> 150 µg/m³) - Crimson Rose
-    { rx: 55 + windSpeed * 1.5 + pulse * 0.4, ry: 28 + windSpeed * 0.5, color: 'rgba(244, 63, 94, 0.65)', stroke: '#f43f5e', label: '>150 µg/m³ (Puncak Kritis)', distFactor: 0.2 }
+    { rx: 55 + windSpeed * 1.5 + pulse * 0.4, ry: 30 + windSpeed * 0.5, color: 'rgba(244, 63, 94, 0.68)', stroke: '#f43f5e', label: '>150 µg/m³ (Puncak Kritis)', distFactor: 0.2 }
   ];
 
   // Draw Gaussian Concentration Plume using transformed Elliptical Gradients
@@ -1156,47 +1155,84 @@ function drawConcentrationZoningMap(sourceX, sourceY, isDynamic) {
     // Isopleth contour boundary line
     ctx.strokeStyle = z.stroke;
     ctx.lineWidth = 1.5;
-    ctx.setLineDash([4, 2]);
+    ctx.setLineDash([5, 3]);
     ctx.stroke();
     ctx.setLineDash([]);
 
     ctx.restore();
   });
 
-  // Draw Concentration Zone Text Badges along the plume centerline
-  const labelDist = 120 + windSpeed * 4;
-  const labelX = sourceX + dx * labelDist;
-  const labelY = sourceY + dy * labelDist * 0.7;
+  // --- REGIONAL CITY STATIONS WITH LOCAL CONCENTRATION BADGES ---
+  const cityStations = scenario === 'karhutla' ? [
+    { name: 'Pekanbaru', x: 395, y: 275 },
+    { name: 'Siak', x: 475, y: 220 },
+    { name: 'Dumai', x: 410, y: 165 },
+    { name: 'Padang', x: 310, y: 365 },
+    { name: 'Singapore/Batam', x: 560, y: 200 },
+    { name: 'Palembang', x: 530, y: 460 }
+  ] : [
+    { name: 'Jakarta Pusat (Monas)', x: 360, y: 320 },
+    { name: 'Tanjung Priok', x: 370, y: 255 },
+    { name: 'Tangerang', x: 210, y: 310 },
+    { name: 'Bekasi', x: 505, y: 375 },
+    { name: 'Depok / Bogor', x: 360, y: 440 },
+    { name: 'Kep. Seribu', x: 290, y: 80 }
+  ];
 
-  ctx.fillStyle = 'rgba(6, 17, 13, 0.8)';
-  ctx.strokeStyle = 'rgba(234, 179, 8, 0.6)';
-  ctx.lineWidth = 1;
-  ctx.beginPath();
-  ctx.roundRect(labelX - 45, labelY - 12, 90, 22, 4);
-  ctx.fill();
-  ctx.stroke();
+  cityStations.forEach((city) => {
+    // Calculate local concentration at city based on distance to source
+    const dX = city.x - sourceX;
+    const dY = city.y - sourceY;
+    const dist = Math.sqrt(dX * dX + dY * dY);
+    // Projection along wind vector
+    const downwind = (dX * dx + dY * dy) / Math.sqrt(dx * dx + dy * dy);
+    const crosswind = Math.abs((dX * -dy + dY * dx) / Math.sqrt(dx * dx + dy * dy));
 
-  ctx.fillStyle = '#fef08a';
-  ctx.font = 'bold 9.5px sans-serif';
-  ctx.textAlign = 'center';
-  ctx.fillText('Zonasi Dispersi PM', labelX, labelY + 3);
-  ctx.textAlign = 'left';
+    let localConc = 30; // base background
+    if (dist < 30) {
+      localConc = 165;
+    } else if (downwind > 0 && crosswind < (60 + windSpeed * 2.5) && dist < (250 + windSpeed * 8)) {
+      localConc = Math.round(150 * Math.exp(-dist / (120 + windSpeed * 5)) * Math.exp(-crosswind / 45));
+      localConc = Math.max(localConc, 40);
+    }
+
+    // Determine color of city badge
+    let badgeColor = '#10b981'; // Green
+    if (localConc > 150) badgeColor = '#f43f5e'; // Red
+    else if (localConc > 100) badgeColor = '#f97316'; // Orange
+    else if (localConc > 50) badgeColor = '#eab308'; // Yellow
+
+    // Draw city dot
+    ctx.fillStyle = badgeColor;
+    ctx.beginPath();
+    ctx.arc(city.x, city.y, 4.5, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.strokeStyle = '#ffffff';
+    ctx.lineWidth = 1.5;
+    ctx.stroke();
+
+    // Draw city label & conc value
+    ctx.fillStyle = '#ffffff';
+    ctx.font = 'bold 9.5px sans-serif';
+    ctx.shadowColor = 'rgba(0,0,0,0.9)';
+    ctx.shadowBlur = 4;
+    ctx.fillText(`${city.name}: ${localConc}µg`, city.x + 8, city.y + 3);
+    ctx.shadowBlur = 0;
+  });
 
   // --- SOURCE EMISSION CENTER BEACON ---
-  // Ambient radial glow
-  const coreGrad = ctx.createRadialGradient(sourceX, sourceY, 3, sourceX, sourceY, 40);
+  const coreGrad = ctx.createRadialGradient(sourceX, sourceY, 3, sourceX, sourceY, 45);
   coreGrad.addColorStop(0, 'rgba(244, 63, 94, 0.85)');
   coreGrad.addColorStop(0.5, 'rgba(249, 115, 22, 0.45)');
   coreGrad.addColorStop(1, 'rgba(6, 17, 13, 0)');
   ctx.fillStyle = coreGrad;
   ctx.beginPath();
-  ctx.arc(sourceX, sourceY, 40, 0, Math.PI * 2);
+  ctx.arc(sourceX, sourceY, 45, 0, Math.PI * 2);
   ctx.fill();
 
-  // Core Point
   ctx.fillStyle = '#f43f5e';
   ctx.beginPath();
-  ctx.arc(sourceX, sourceY, 6, 0, Math.PI * 2);
+  ctx.arc(sourceX, sourceY, 6.5, 0, Math.PI * 2);
   ctx.fill();
   ctx.strokeStyle = '#ffffff';
   ctx.lineWidth = 2.5;
@@ -1252,8 +1288,8 @@ window.runWrfSimulationAnimation = function() {
     plumePulseOffset += 1;
 
     const scenario = document.getElementById('wrfScenario')?.value || 'karhutla';
-    let sourceX = scenario === 'jakarta' ? 212 : 185;
-    let sourceY = scenario === 'jakarta' ? 205 : 185;
+    let sourceX = scenario === 'jakarta' ? 360 : 395;
+    let sourceY = scenario === 'jakarta' ? 320 : 275;
     if (customSourcePoint) {
       sourceX = customSourcePoint.x;
       sourceY = customSourcePoint.y;
@@ -1274,7 +1310,7 @@ mapSumatraImg.src = 'assets/images/map_sumatra.png';
 const mapJakartaImg = new Image();
 mapJakartaImg.src = 'assets/images/map_jakarta.png';
 
-// Geographic Map Renderer Function
+// Geographic Map Renderer Function with Proportional Cover Scaling
 function drawWrfGeographicMap(ctx, canvas, scenario) {
   const w = canvas.width;
   const h = canvas.height;
@@ -1282,29 +1318,32 @@ function drawWrfGeographicMap(ctx, canvas, scenario) {
   ctx.fillStyle = '#081714';
   ctx.fillRect(0, 0, w, h);
 
-  // Draw Satellite Image Background if loaded
-  if (scenario === 'karhutla' && mapSumatraImg.complete && mapSumatraImg.naturalWidth !== 0) {
-    ctx.drawImage(mapSumatraImg, 0, 0, w, h);
-    ctx.fillStyle = 'rgba(6, 17, 13, 0.2)';
-    ctx.fillRect(0, 0, w, h);
-  } else if (scenario === 'jakarta' && mapJakartaImg.complete && mapJakartaImg.naturalWidth !== 0) {
-    ctx.drawImage(mapJakartaImg, 0, 0, w, h);
-    ctx.fillStyle = 'rgba(6, 17, 13, 0.2)';
+  const mapImg = scenario === 'jakarta' ? mapJakartaImg : mapSumatraImg;
+
+  if (mapImg.complete && mapImg.naturalWidth !== 0) {
+    const imgW = mapImg.naturalWidth || 1024;
+    const imgH = mapImg.naturalHeight || 1024;
+    const targetAspect = w / h;
+    const cropH = imgW / targetAspect;
+    const cropY = (imgH - cropH) / 2;
+
+    ctx.drawImage(mapImg, 0, cropY, imgW, cropH, 0, 0, w, h);
+    ctx.fillStyle = 'rgba(6, 17, 13, 0.15)';
     ctx.fillRect(0, 0, w, h);
   }
 
   // Lat/Long Coordinate Grid lines
-  ctx.strokeStyle = 'rgba(16, 185, 129, 0.15)';
+  ctx.strokeStyle = 'rgba(16, 185, 129, 0.12)';
   ctx.lineWidth = 1;
   ctx.setLineDash([4, 4]);
 
-  for (let x = 60; x < w; x += 100) {
+  for (let x = 70; x < w; x += 100) {
     ctx.beginPath();
     ctx.moveTo(x, 0);
     ctx.lineTo(x, h);
     ctx.stroke();
   }
-  for (let y = 40; y < h; y += 80) {
+  for (let y = 50; y < h; y += 80) {
     ctx.beginPath();
     ctx.moveTo(0, y);
     ctx.lineTo(w, y);

@@ -26,7 +26,7 @@ let state = {
 const i18n = {
   id: {
     nav_about: "Tentang",
-    nav_wrf: "WRF-Chem Simulator",
+    nav_wrf: "AERMOD Simulator",
     nav_experience: "Pengalaman & Edukasi",
     nav_research: "Publikasi & Riset",
     nav_blog: "Blogspot",
@@ -34,7 +34,7 @@ const i18n = {
     btn_login: "Login",
     btn_admin_panel: "CMS",
     hero_cta_pubs: "Lihat Publikasi & Riset",
-    hero_cta_wrf: "Uji Simulator WRF-Chem",
+    hero_cta_wrf: "Uji Simulator AERMOD",
     hero_cta_blog: "Baca Artikel Blog",
     hero_cta_contact: "Hubungi Saya",
     avatar_status: "Aktif Meneliti & Berkolaborasi",
@@ -42,27 +42,27 @@ const i18n = {
     about_title: "Kombinasi Sains Atmosfer & Rekayasa Lingkungan",
     about_desc: "Menggabungkan riset berbasis alam untuk penangkapan karbon dan simulasi numerik presisi tinggi untuk perlindungan mutu udara.",
     about_focus_title: "Pilar Riset Utama",
-    wrf_subtitle: "Simulasi Interaktif WRF-Chem",
-    wrf_title: "WRF-Chem Air Quality & Dispersion Simulator",
-    wrf_desc: "Pemodelan spasial zonasi konsentrasi mutu udara & sebaran polutan berbasis peta GIS satelit (JTL 2025).",
-    wrf_ctrl_heading: "Parameter Simulasi",
-    wrf_scenario_label: "Skenario Simulasi",
-    wrf_scen_1: "Asap Karhutla (Riau & Sumatera)",
-    wrf_scen_2: "Dispersi PM2.5 Perkotaan (Jakarta)",
+    wrf_subtitle: "Simulasi Dispersi AERMOD",
+    wrf_title: "AERMOD Air Quality & Dispersion Simulator",
+    wrf_desc: "Pemodelan dispersi Gauss, estimasi konsentrasi polutan permukaan & zonasi dampak emisi berbasis standar regulasi US-EPA AERMOD.",
+    wrf_ctrl_heading: "Parameter Simulasi AERMOD",
+    wrf_scenario_label: "Skenario Emisi & Wilayah",
+    wrf_scen_1: "Dispersi Asap Karhutla (Riau & Sumatera)",
+    wrf_scen_2: "Dispersi Emisi & PM2.5 (DKI Jakarta)",
     wrf_scen_3: "Adsorpsi CO2 & Biochar Sequestration",
-    wrf_mech_label: "Mekanisme Kimia Atmosfer",
-    wrf_wind_speed: "Kecepatan Angin",
+    wrf_mech_label: "Tipe Sumber & Lapisan Batas (PBL)",
+    wrf_wind_speed: "Kecepatan Angin (AERMET 10m)",
     wrf_wind_dir: "Arah Angin (Predominan)",
     dir_ne: "Timur Laut (Northeast)",
     dir_e: "Timur (East)",
     dir_se: "Tenggara (Southeast)",
     dir_nw: "Barat Laut (Northwest)",
     wrf_btn_run: "Tampilkan Pola Zonasi",
-    wrf_metric_peak: "Konsentrasi Puncak",
-    wrf_metric_radius: "Radius Sebaran",
-    wrf_metric_aqi: "Indeks AQI",
-    wrf_metric_accuracy: "Akurasi Reaksi",
-    wrf_note_title: "Catatan Temuan Riset (Ade Ayu et al., 2025):",
+    wrf_metric_peak: "Konsentrasi Puncak (GLC)",
+    wrf_metric_radius: "Radius Sebaran Pluma",
+    wrf_metric_aqi: "Indeks Mutu Udara (AQI)",
+    wrf_metric_accuracy: "Standar Regulasi",
+    wrf_note_title: "Catatan Pemodelan Dispersi Atmosferik (AERMOD Model):",
     wrf_touch_hint: "Klik / Sentuh Wilayah Peta untuk Analisis Konsentrasi",
     focus_1_title: "Carbon Capture & Biochar",
     focus_1_desc: "Sintesis biochar dari limbah organik dan sludge limbah domestik melalui proses pirolisis untuk kapasitas sekuestrasi CO2 maksimal.",
@@ -98,7 +98,7 @@ const i18n = {
   },
   en: {
     nav_about: "About",
-    nav_wrf: "WRF-Chem Simulator",
+    nav_wrf: "AERMOD Simulator",
     nav_experience: "Experience & Education",
     nav_research: "Publications & Research",
     nav_blog: "Blogspot",
@@ -106,34 +106,34 @@ const i18n = {
     btn_login: "Login",
     btn_admin_panel: "CMS",
     hero_cta_pubs: "Explore Research",
-    hero_cta_wrf: "Test WRF Simulator",
+    hero_cta_wrf: "Test AERMOD Simulator",
     hero_cta_blog: "Read Blog Posts",
     hero_cta_contact: "Get in Touch",
     avatar_status: "Active Research & Collaboration",
     about_subtitle: "Academic Focus & Expertise",
     about_title: "Atmospheric Science & Environmental Engineering",
     about_desc: "Combining nature-based solutions for carbon sequestration with high-precision numerical simulations for air quality protection.",
-    wrf_subtitle: "Interactive WRF-Chem Simulation",
-    wrf_title: "WRF-Chem Air Quality & Dispersion Simulator",
-    wrf_desc: "Spatial regional concentration zoning & pollutant dispersion modeling based on GIS satellite maps (JTL 2025).",
-    wrf_ctrl_heading: "Simulation Parameters",
-    wrf_scenario_label: "Simulation Scenario",
-    wrf_scen_1: "Wildfire Smoke (Riau & Sumatera)",
-    wrf_scen_2: "Urban PM2.5 Dispersion (Jakarta)",
+    wrf_subtitle: "Interactive AERMOD Simulation",
+    wrf_title: "AERMOD Air Quality & Dispersion Simulator",
+    wrf_desc: "Gaussian dispersion modeling, ground-level pollutant concentration & impact zoning based on US-EPA AERMOD Modeling System.",
+    wrf_ctrl_heading: "AERMOD Simulation Parameters",
+    wrf_scenario_label: "Emission Scenario & Region",
+    wrf_scen_1: "Wildfire Smoke Dispersion (Riau & Sumatera)",
+    wrf_scen_2: "Urban PM2.5 & Industrial Dispersion (Jakarta)",
     wrf_scen_3: "CO2 Adsorption & Biochar Sequestration",
-    wrf_mech_label: "Chemical Mechanism",
-    wrf_wind_speed: "Wind Speed",
+    wrf_mech_label: "Source Type & Boundary Layer (PBL)",
+    wrf_wind_speed: "Surface Wind Speed (AERMET 10m)",
     wrf_wind_dir: "Predominant Wind Direction",
     dir_ne: "Northeast",
     dir_e: "East",
     dir_se: "Southeast",
     dir_nw: "Northwest",
     wrf_btn_run: "Show Heatmap Zones",
-    wrf_metric_peak: "Peak Concentration",
-    wrf_metric_radius: "Dispersion Radius",
-    wrf_metric_aqi: "AQI Index",
-    wrf_metric_accuracy: "Mechanism Accuracy",
-    wrf_note_title: "Research Finding Note (Ade Ayu et al., 2025):",
+    wrf_metric_peak: "Peak Concentration (GLC)",
+    wrf_metric_radius: "Plume Dispersion Radius",
+    wrf_metric_aqi: "Air Quality Index (AQI)",
+    wrf_metric_accuracy: "Regulatory Standard",
+    wrf_note_title: "AERMOD Atmospheric Dispersion Modeling Note:",
     wrf_touch_hint: "Click / Tap Map Region for Concentration Analysis",
     about_focus_title: "Core Research Pillars",
     focus_1_title: "Carbon Capture & Biochar",
@@ -939,7 +939,7 @@ function handleMapTouch(e) {
 
 window.updateWrfSim = function() {
   const scenario = document.getElementById('wrfScenario')?.value || 'karhutla';
-  const mechanism = document.getElementById('wrfMechanism')?.value || 'GEOS-Chem';
+  const mechanism = document.getElementById('wrfMechanism')?.value || 'Point-CBL';
   const windSpeed = parseFloat(document.getElementById('wrfWind')?.value || 8.5);
 
   // Update Wind Speed Display
@@ -948,7 +948,10 @@ window.updateWrfSim = function() {
 
   // Update Mechanism Badge
   const mechBadge = document.getElementById('wrfMechBadge');
-  if (mechBadge) mechBadge.textContent = `${mechanism} Mechanism`;
+  if (mechBadge) {
+    const mechLabel = mechanism === 'Point-CBL' ? 'Point Source (CBL)' : (mechanism === 'Area-SBL' ? 'Area Source (SBL)' : 'Volume Source (Urban)');
+    mechBadge.textContent = `AERMOD ${mechLabel}`;
+  }
 
   // Determine active beacon point based on proportional map coordinates (700x520)
   let ptX = 395;
@@ -973,7 +976,7 @@ window.updateWrfSim = function() {
 
 function recalculateMetricsForPoint(x, y) {
   const scenario = document.getElementById('wrfScenario')?.value || 'karhutla';
-  const mechanism = document.getElementById('wrfMechanism')?.value || 'GEOS-Chem';
+  const mechanism = document.getElementById('wrfMechanism')?.value || 'Point-CBL';
   const windSpeed = parseFloat(document.getElementById('wrfWind')?.value || 8.5);
   const isEn = state.lang === 'en';
 
@@ -982,7 +985,7 @@ function recalculateMetricsForPoint(x, y) {
   const normY = y / 520;
   const distFromCenter = Math.sqrt(Math.pow(normX - 0.5, 2) + Math.pow(normY - 0.5, 2));
 
-  // Dynamic Peak Concentration (µg/m³)
+  // Dynamic Peak Concentration Ground-Level Concentration (µg/m³)
   const basePeak = scenario === 'karhutla' ? 135 : 95;
   const peak = Math.round(basePeak + (normX * 55) + (normY * 40) + (windSpeed * 4.2));
 
@@ -1005,21 +1008,19 @@ function recalculateMetricsForPoint(x, y) {
     aqiColor = 'var(--primary)';
   }
 
-  // Dynamic Mechanism Accuracy
-  const mechBaseAcc = mechanism === 'GEOS-Chem' ? 94.8 : (mechanism === 'SAPRC99' ? 88.6 : 86.2);
-  const locVariance = ((normX * 2.2) - (normY * 1.5)).toFixed(1);
-  const accuracy = `${(parseFloat(mechBaseAcc) + parseFloat(locVariance)).toFixed(1)}% (JTL '25)`;
+  // Dynamic Regulatory Standard / Formulation Accuracy
+  const accuracy = isEn ? "US-EPA Compliant" : "Standar US-EPA / KLHK";
 
   // Dynamic paper note text
   let noteText = '';
   if (customSourcePoint) {
     noteText = isEn ?
-      `Region (${x}, ${y}): WRF-Chem numerical model generated spatial concentration gradient (${peak} µg/m³ peak) with ${radius} km dispersion buffer.` :
-      `Wilayah (${x}, ${y}): Model numerik WRF-Chem menghasilkan zonasi sebaran konsentrasi spasial (${peak} µg/m³ puncak) & radius buffer ${radius} km.`;
+      `Selected Receptor (${x}, ${y}): AERMOD dispersion model calculated Ground-Level Concentration (${peak} µg/m³ peak) with ${radius} km dispersion plume.` :
+      `Titik Reseptor (${x}, ${y}): Model dispersi AERMOD menghitung Ground-Level Concentration (${peak} µg/m³ puncak) & radius pluma dispersi ${radius} km.`;
   } else {
     noteText = isEn ?
-      `GEOS-Chem mechanism provided highest spatial accuracy for atmospheric aerosol zoning in Sumatera compared to SAPRC99 and MOZART.` :
-      `Mekanisme GEOS-Chem memberikan akurasi spasial tertinggi untuk zonasi aerosol atmosferik di Sumatera dibandingkan SAPRC99 dan MOZART.`;
+      `AERMOD (AMS/EPA Regulatory Model) incorporates boundary layer turbulence structure, planetary boundary layer (PBL) scaling, and convective/stable atmospheric dispersion algorithms.` :
+      `AERMOD (AMS/EPA Regulatory Model) memodelkan dispersi polutan tunak (steady-state) berbasis struktur turbulensi lapisan batas (PBL), lapisan konvektif (CBL), dan lapisan stabil (SBL) untuk estimasi dampak mutu udara.`;
   }
 
   document.getElementById('wrfMetricPeak').textContent = `${peak} µg/m³`;

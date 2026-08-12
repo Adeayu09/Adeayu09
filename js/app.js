@@ -26,6 +26,7 @@ let state = {
 const i18n = {
   id: {
     nav_about: "Tentang",
+    nav_wrf: "WRF-Chem Simulator",
     nav_experience: "Pengalaman & Edukasi",
     nav_research: "Publikasi & Riset",
     nav_blog: "Blogspot",
@@ -33,6 +34,7 @@ const i18n = {
     btn_login: "Login Admin",
     btn_admin_panel: "CMS Admin",
     hero_cta_pubs: "Lihat Publikasi & Riset",
+    hero_cta_wrf: "Uji Simulator WRF-Chem",
     hero_cta_blog: "Baca Artikel Blog",
     hero_cta_contact: "Hubungi Saya",
     avatar_status: "Aktif Meneliti & Berkolaborasi",
@@ -40,6 +42,27 @@ const i18n = {
     about_title: "Kombinasi Sains Atmosfer & Rekayasa Lingkungan",
     about_desc: "Menggabungkan riset berbasis alam untuk penangkapan karbon dan simulasi numerik presisi tinggi untuk perlindungan mutu udara.",
     about_focus_title: "Pilar Riset Utama",
+    wrf_subtitle: "Simulasi Interaktif WRF-Chem",
+    wrf_title: "WRF-Chem Air Quality & Dispersion Simulator",
+    wrf_desc: "Visualisasi numerik sebaran asap karhutla, pencemar udara, dan adsorpsi karbon berdasarkan hasil publikasi ilmiah Ade Ayu Oktaviana (JTL 2025).",
+    wrf_ctrl_heading: "Parameter Simulasi",
+    wrf_scenario_label: "Skenario Simulasi",
+    wrf_scen_1: "Asap Karhutla (Riau & Sumatera)",
+    wrf_scen_2: "Dispersi PM2.5 Perkotaan Jakarta",
+    wrf_scen_3: "Adsorpsi CO2 & Biochar Sequestration",
+    wrf_mech_label: "Mekanisme Kimia Atmosfer",
+    wrf_wind_speed: "Kecepatan Angin",
+    wrf_wind_dir: "Arah Angin (Predominan)",
+    dir_ne: "Timur Laut (Northeast)",
+    dir_e: "Timur (East)",
+    dir_se: "Tenggara (Southeast)",
+    dir_nw: "Barat Laut (Northwest)",
+    wrf_btn_run: "Jalankan Simulasi",
+    wrf_metric_peak: "Konsentrasi Puncak",
+    wrf_metric_radius: "Radius Sebaran",
+    wrf_metric_aqi: "Indeks AQI",
+    wrf_metric_accuracy: "Akurasi Reaksi",
+    wrf_note_title: "Catatan Temuan Riset (Ade Ayu et al., 2025):",
     focus_1_title: "Carbon Capture & Biochar",
     focus_1_desc: "Sintesis biochar dari limbah organik dan sludge limbah domestik melalui proses pirolisis untuk kapasitas sekuestrasi CO2 maksimal.",
     focus_2_title: "Pemodelan Kualitas Udara & Cuaca",
@@ -74,6 +97,7 @@ const i18n = {
   },
   en: {
     nav_about: "About",
+    nav_wrf: "WRF-Chem Simulator",
     nav_experience: "Experience & Education",
     nav_research: "Publications & Research",
     nav_blog: "Blogspot",
@@ -81,12 +105,34 @@ const i18n = {
     btn_login: "Admin Login",
     btn_admin_panel: "Admin CMS",
     hero_cta_pubs: "Explore Research",
+    hero_cta_wrf: "Test WRF Simulator",
     hero_cta_blog: "Read Blog Posts",
     hero_cta_contact: "Get in Touch",
     avatar_status: "Active Research & Collaboration",
     about_subtitle: "Academic Focus & Expertise",
     about_title: "Atmospheric Science & Environmental Engineering",
     about_desc: "Combining nature-based solutions for carbon sequestration with high-precision numerical simulations for air quality protection.",
+    wrf_subtitle: "Interactive WRF-Chem Simulation",
+    wrf_title: "WRF-Chem Air Quality & Dispersion Simulator",
+    wrf_desc: "Numerical visualization of wildfire smoke plumes, air pollutants, and carbon adsorption based on Ade Ayu Oktaviana's research paper (JTL 2025).",
+    wrf_ctrl_heading: "Simulation Parameters",
+    wrf_scenario_label: "Simulation Scenario",
+    wrf_scen_1: "Wildfire Smoke (Riau & Sumatera)",
+    wrf_scen_2: "Urban PM2.5 Dispersion (Jakarta)",
+    wrf_scen_3: "CO2 Adsorption & Biochar Sequestration",
+    wrf_mech_label: "Chemical Mechanism",
+    wrf_wind_speed: "Wind Speed",
+    wrf_wind_dir: "Predominant Wind Direction",
+    dir_ne: "Northeast",
+    dir_e: "East",
+    dir_se: "Southeast",
+    dir_nw: "Northwest",
+    wrf_btn_run: "Run Simulation",
+    wrf_metric_peak: "Peak Concentration",
+    wrf_metric_radius: "Dispersion Radius",
+    wrf_metric_aqi: "AQI Index",
+    wrf_metric_accuracy: "Mechanism Accuracy",
+    wrf_note_title: "Research Finding Note (Ade Ayu et al., 2025):",
     about_focus_title: "Core Research Pillars",
     focus_1_title: "Carbon Capture & Biochar",
     focus_1_desc: "Biochar synthesis from organic waste and domestic sludge via pyrolysis to maximize CO2 adsorption capacity.",
@@ -127,6 +173,7 @@ document.addEventListener('DOMContentLoaded', () => {
   initTheme();
   initLanguage();
   renderAll();
+  initWrfSimulator();
 
   // Secret keyboard shortcut to open admin login: Ctrl + Shift + A
   document.addEventListener('keydown', (e) => {
@@ -823,3 +870,229 @@ function showToast(msg, type = "success") {
     setTimeout(() => toast.remove(), 300);
   }, 3500);
 }
+
+// ==================== WRF-CHEM INTERACTIVE SIMULATOR ENGINE ====================
+let wrfAnimFrame = null;
+let wrfParticles = [];
+
+function initWrfSimulator() {
+  updateWrfSim();
+  runWrfSimulationAnimation();
+}
+
+window.updateWrfSim = function() {
+  const scenario = document.getElementById('wrfScenario')?.value || 'karhutla';
+  const mechanism = document.getElementById('wrfMechanism')?.value || 'GEOS-Chem';
+  const windSpeed = parseFloat(document.getElementById('wrfWind')?.value || 8.5);
+  const direction = document.getElementById('wrfDirection')?.value || 'NE';
+  const isEn = state.lang === 'en';
+
+  // Update Wind Speed Display
+  const windValEl = document.getElementById('wrfWindVal');
+  if (windValEl) windValEl.textContent = `${windSpeed} m/s`;
+
+  // Update Mechanism Badge
+  const mechBadge = document.getElementById('wrfMechBadge');
+  if (mechBadge) mechBadge.textContent = `${mechanism} Mechanism`;
+
+  // Metrics Data calculation based on scenario & mechanism
+  let peak = 140;
+  let radius = (windSpeed * 5.2).toFixed(1);
+  let aqiText = '115 (Sedang / Moderate)';
+  let aqiColor = 'var(--accent-teal)';
+  let accuracy = '94.8% (JTL \'25)';
+  let noteText = isEn ?
+    'GEOS-Chem mechanism provided highest accuracy for wildfire aerosol plume transport in Sumatera compared to SAPRC99 and MOZART.' :
+    'Mekanisme GEOS-Chem memberikan akurasi tertinggi untuk estimasi sebaran aerosol kabut asap karhutla di Sumatera dibandingkan SAPRC99 dan MOZART.';
+
+  if (scenario === 'karhutla') {
+    peak = Math.round(110 + windSpeed * 4.5);
+    aqiText = peak > 150 ? '165 (Tidak Sehat)' : '125 (Sedang)';
+    aqiColor = peak > 150 ? 'var(--accent-rose)' : 'var(--accent-teal)';
+    if (mechanism === 'SAPRC99') {
+      accuracy = '88.4% (Photochemical O3 focus)';
+      noteText = isEn ?
+        'SAPRC99 excels in photochemical ozone reaction pathways but slightly underestimates particulate smoke mass.' :
+        'SAPRC99 sangat unggul untuk estimasi reaksi fotokimia ozon, namun cenderung mengunderestimasi massa partikulat asap.';
+    } else if (mechanism === 'MOZART') {
+      accuracy = '86.1% (Regional kinetics)';
+      noteText = isEn ?
+        'MOZART mechanism provides steady regional kinetics for large-scale atmospheric transport.' :
+        'Mekanisme MOZART memberikan kinetika atmosferik regional yang stabil untuk pemodelan skala luas.';
+    }
+  } else if (scenario === 'jakarta') {
+    peak = Math.round(75 + windSpeed * 2.2);
+    radius = (windSpeed * 3.8).toFixed(1);
+    aqiText = '98 (Sedang / Moderate)';
+    aqiColor = 'var(--primary)';
+    accuracy = '91.2% (IOP \'25)';
+    noteText = isEn ?
+      'Strong correlation identified between meteorological boundary layer height, wind speed, and urban PM2.5 dispersion in Jakarta (IOP 2025).' :
+      'Korelasi kuat diidentifikasi antara ketinggian lapisan batas meteorologi, kecepatan angin, dan dispersi PM2.5 perkotaan Jakarta (IOP 2025).';
+  } else if (scenario === 'biochar') {
+    peak = Math.round(350 + windSpeed * 10);
+    radius = (windSpeed * 2.5).toFixed(1);
+    aqiText = 'Optimal CO2 Adsorption';
+    aqiColor = 'var(--primary)';
+    accuracy = '96.5% (Elsevier \'25)';
+    noteText = isEn ?
+      'Domestic sewage sludge biochar pyrolysis at 500-600°C achieves maximal CO2 adsorption capacity for climate mitigation (Results in Engineering 2025).' :
+      'Pirolisis biochar lumpur limbah domestik pada suhu 500-600°C mencapai kapasitas adsorpsi CO2 maksimal untuk mitigasi iklim (Results in Engineering 2025).';
+  }
+
+  document.getElementById('wrfMetricPeak').textContent = `${peak} µg/m³`;
+  document.getElementById('wrfMetricRadius').textContent = `${radius} km`;
+  const aqiEl = document.getElementById('wrfMetricAqi');
+  if (aqiEl) {
+    aqiEl.textContent = aqiText;
+    aqiEl.style.color = aqiColor;
+  }
+  document.getElementById('wrfMetricAccuracy').textContent = accuracy;
+  document.getElementById('wrfNoteContent').textContent = noteText;
+};
+
+window.runWrfSimulationAnimation = function() {
+  const canvas = document.getElementById('wrfCanvas');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+
+  if (wrfAnimFrame) cancelAnimationFrame(wrfAnimFrame);
+
+  // Initialize Particles
+  wrfParticles = [];
+  for (let i = 0; i < 85; i++) {
+    wrfParticles.push(createWrfParticle(canvas));
+  }
+
+  function draw() {
+    const windSpeed = parseFloat(document.getElementById('wrfWind')?.value || 8.5);
+    const direction = document.getElementById('wrfDirection')?.value || 'NE';
+
+    let dx = 1;
+    let dy = -0.5;
+    if (direction === 'NE') { dx = 1.2; dy = -0.7; }
+    if (direction === 'E') { dx = 1.5; dy = 0.1; }
+    if (direction === 'SE') { dx = 1.2; dy = 0.8; }
+    if (direction === 'NW') { dx = -1.2; dy = -0.7; }
+
+    // Clear with dark atmospheric theme
+    ctx.fillStyle = '#06110d';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    // Draw Grid overlay
+    ctx.strokeStyle = 'rgba(16, 185, 129, 0.08)';
+    ctx.lineWidth = 1;
+    for (let x = 0; x < canvas.width; x += 40) {
+      ctx.beginPath();
+      ctx.moveTo(x, 0);
+      ctx.lineTo(x, canvas.height);
+      ctx.stroke();
+    }
+    for (let y = 0; y < canvas.height; y += 40) {
+      ctx.beginPath();
+      ctx.moveTo(0, y);
+      ctx.lineTo(canvas.width, y);
+      ctx.stroke();
+    }
+
+    // Source Emission Emitter (Origin Beacon)
+    const sourceX = 100;
+    const sourceY = canvas.height / 2 + 20;
+
+    // Heat Gradient Rings at Source
+    const grad = ctx.createRadialGradient(sourceX, sourceY, 5, sourceX, sourceY, 120 + windSpeed * 4);
+    grad.addColorStop(0, 'rgba(244, 63, 94, 0.45)');
+    grad.addColorStop(0.4, 'rgba(245, 158, 11, 0.25)');
+    grad.addColorStop(0.7, 'rgba(16, 185, 129, 0.12)');
+    grad.addColorStop(1, 'rgba(6, 17, 13, 0)');
+    ctx.fillStyle = grad;
+    ctx.beginPath();
+    ctx.arc(sourceX, sourceY, 120 + windSpeed * 4, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Source Beacon Pulsing Point
+    ctx.fillStyle = '#f43f5e';
+    ctx.beginPath();
+    ctx.arc(sourceX, sourceY, 6, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.strokeStyle = '#ffffff';
+    ctx.lineWidth = 2;
+    ctx.stroke();
+
+    // Text Label Source
+    ctx.fillStyle = '#f8faf9';
+    ctx.font = '11px sans-serif';
+    ctx.fillText('Source (Emission Origin)', sourceX - 50, sourceY + 22);
+
+    // Draw & Update Particles
+    wrfParticles.forEach((p) => {
+      p.x += (dx * windSpeed * 0.45) + p.vx;
+      p.y += (dy * windSpeed * 0.45) + p.vy;
+      p.life += 1;
+      p.radius += 0.18;
+      p.alpha -= 0.005;
+
+      if (p.alpha <= 0 || p.x > canvas.width + 50 || p.y < -50 || p.y > canvas.height + 50) {
+        Object.assign(p, createWrfParticle(canvas));
+      }
+
+      ctx.fillStyle = p.color.replace('ALPHA', p.alpha.toFixed(2));
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+      ctx.fill();
+    });
+
+    // Wind Vector Overlay Arrow
+    ctx.strokeStyle = '#10b981';
+    ctx.fillStyle = '#10b981';
+    ctx.lineWidth = 2;
+    const arrowStartX = canvas.width - 70;
+    const arrowStartY = 45;
+    const arrowEndX = arrowStartX + dx * 25;
+    const arrowEndY = arrowStartY + dy * 25;
+
+    ctx.beginPath();
+    ctx.moveTo(arrowStartX, arrowStartY);
+    ctx.lineTo(arrowEndX, arrowEndY);
+    ctx.stroke();
+
+    // Arrow Head
+    const angle = Math.atan2(dy * 25, dx * 25);
+    ctx.beginPath();
+    ctx.moveTo(arrowEndX, arrowEndY);
+    ctx.lineTo(arrowEndX - 8 * Math.cos(angle - Math.PI / 6), arrowEndY - 8 * Math.sin(angle - Math.PI / 6));
+    ctx.lineTo(arrowEndX - 8 * Math.cos(angle + Math.PI / 6), arrowEndY - 8 * Math.sin(angle + Math.PI / 6));
+    ctx.fill();
+
+    ctx.fillStyle = '#a7f3d0';
+    ctx.font = '10px sans-serif';
+    ctx.fillText(`Wind Vector (${direction})`, arrowStartX - 30, arrowStartY - 10);
+
+    wrfAnimFrame = requestAnimationFrame(draw);
+  }
+
+  draw();
+};
+
+function createWrfParticle(canvas) {
+  const sourceX = 100;
+  const sourceY = canvas.height / 2 + 20;
+  const colors = [
+    'rgba(244, 63, 94, ALPHA)',  // High concentration rose
+    'rgba(245, 158, 11, ALPHA)', // Medium amber
+    'rgba(16, 185, 129, ALPHA)', // Low mint
+    'rgba(6, 182, 212, ALPHA)'   // Cyan aerosol
+  ];
+
+  return {
+    x: sourceX + (Math.random() - 0.5) * 15,
+    y: sourceY + (Math.random() - 0.5) * 15,
+    vx: (Math.random() - 0.5) * 0.6,
+    vy: (Math.random() - 0.5) * 0.6,
+    radius: Math.random() * 4 + 3,
+    alpha: Math.random() * 0.5 + 0.4,
+    life: 0,
+    color: colors[Math.floor(Math.random() * colors.length)]
+  };
+}
+

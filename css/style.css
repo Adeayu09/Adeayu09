@@ -448,21 +448,41 @@ img {
 
 .avatar-badge-float {
   position: absolute;
-  bottom: -15px;
+  bottom: 15px;
   left: 50%;
   transform: translateX(-50%);
   background: var(--bg-glass);
-  backdrop-filter: blur(12px);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
   padding: 0.65rem 1.25rem;
   border-radius: var(--radius-full);
-  box-shadow: var(--shadow-md);
-  border: 1px solid var(--border-accent);
+  box-shadow: var(--shadow-lg);
+  border: 1.5px solid var(--border-accent);
   display: flex;
   align-items: center;
   gap: 0.6rem;
   white-space: nowrap;
   font-size: 0.875rem;
   font-weight: 600;
+  animation: floatAnim 4s ease-in-out infinite;
+  z-index: 10;
+}
+
+.avatar-badge-float.top-right {
+  top: 15px;
+  right: -15px;
+  left: auto;
+  bottom: auto;
+  transform: none;
+  background: var(--bg-glass);
+  border-color: rgba(16, 185, 129, 0.4);
+  font-size: 0.825rem;
+  animation: floatAnim 4s ease-in-out infinite 2s;
+}
+
+@keyframes floatAnim {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
 }
 
 .dot-online {

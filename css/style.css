@@ -486,8 +486,6 @@ img {
   font-size: 0.825rem;
   animation: floatAnim 4s ease-in-out infinite 2s;
 }
-  animation: floatAnim 4s ease-in-out infinite 2s;
-}
 
 @keyframes floatAnim {
   0%, 100% { transform: translateY(0); }

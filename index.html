@@ -1,0 +1,585 @@
+<!DOCTYPE html>
+<html lang="id" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ade Ayu Oktaviana | Ph.D. Candidate & Environmental Engineer Portfolio</title>
+  <meta name="description" content="Portofolio Profesional Ade Ayu Oktaviana - Kandidat Ph.D. Teknik Lingkungan ITS, Peneliti Carbon Capture & Biochar di NTU, Spesialis Pemodelan Kualitas Udara (WRF-Chem, AERMOD).">
+  <meta name="keywords" content="Ade Ayu Oktaviana, Biochar, Carbon Capture, WRF-Chem, AERMOD, Teknik Lingkungan, ITS, ITERA, NTU">
+
+  <!-- Google Fonts & FontAwesome -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+  <!-- Custom CSS -->
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+  <!-- Toast Container -->
+  <div id="toastContainer" class="toast-container"></div>
+
+  <!-- Header & Navigation -->
+  <header class="header">
+    <div class="container nav-container">
+      <a href="#" class="logo">
+        <div class="logo-icon"><i class="fa-solid fa-leaf"></i></div>
+        <span>Ade Ayu Oktaviana</span>
+      </a>
+
+      <nav class="nav-links" id="navLinks">
+        <a href="#about" class="nav-link" data-i18n="nav_about">Tentang</a>
+        <a href="#experience" class="nav-link" data-i18n="nav_experience">Pengalaman & Edukasi</a>
+        <a href="#research" class="nav-link" data-i18n="nav_research">Publikasi & Riset</a>
+        <a href="#blog" class="nav-link" data-i18n="nav_blog">Blogspot</a>
+        <a href="#contact" class="nav-link" data-i18n="nav_contact">Kontak</a>
+      </nav>
+
+      <div class="nav-actions">
+        <!-- Language Switcher -->
+        <div class="lang-switch">
+          <button class="lang-btn active" id="langIdBtn" onclick="setLanguage('id')">ID 🇮🇩</button>
+          <button class="lang-btn" id="langEnBtn" onclick="setLanguage('en')">EN 🇬🇧</button>
+        </div>
+
+        <!-- Dark Mode Toggle -->
+        <button class="btn btn-outline btn-icon" id="themeToggle" title="Ganti Tema">
+          <i class="fa-solid fa-moon"></i>
+        </button>
+
+        <!-- Admin Login Button -->
+        <button class="btn btn-primary btn-sm" id="openLoginBtn" onclick="openLoginModal()">
+          <i class="fa-solid fa-user-lock"></i> <span id="loginBtnText" data-i18n="btn_login">Login Admin</span>
+        </button>
+
+        <!-- Mobile Drawer Menu Toggle -->
+        <button class="mobile-toggle" id="mobileToggle" onclick="toggleMobileNav()">
+          <i class="fa-solid fa-bars"></i>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <!-- Hero Section -->
+    <section class="hero">
+      <div class="hero-bg-accent"></div>
+      <div class="container hero-grid">
+        <div class="hero-content">
+          <div class="hero-tags">
+            <span class="badge-pill"><i class="fa-solid fa-graduation-cap"></i> Ph.D. Candidate @ ITS</span>
+            <span class="badge-pill rose"><i class="fa-solid fa-microscope"></i> Researcher @ NTU Taiwan</span>
+          </div>
+
+          <h1 id="heroName">Ade Ayu Oktaviana</h1>
+          <p id="heroTitle" class="gradient-text" style="font-weight: 700; font-size: 1.35rem; margin-bottom: 0.75rem;"></p>
+          <p id="heroBio"></p>
+
+          <div class="hero-buttons">
+            <a href="#research" class="btn btn-primary">
+              <i class="fa-solid fa-book-bookmark"></i> <span data-i18n="hero_cta_pubs">Lihat Publikasi & Riset</span>
+            </a>
+            <a href="#blog" class="btn btn-outline">
+              <i class="fa-solid fa-newspaper"></i> <span data-i18n="hero_cta_blog">Baca Artikel Blog</span>
+            </a>
+            <a href="#contact" class="btn btn-outline">
+              <i class="fa-solid fa-paper-plane"></i> <span data-i18n="hero_cta_contact">Hubungi Saya</span>
+            </a>
+          </div>
+
+          <div class="hero-stats" id="heroStatsContainer"></div>
+        </div>
+
+        <div class="hero-avatar-wrapper">
+          <div class="avatar-card">
+            <img id="profileAvatarImg" src="assets/images/profile.png" alt="Ade Ayu Oktaviana">
+            <div class="avatar-badge-float">
+              <div class="dot-online"></div>
+              <span data-i18n="avatar_status">Aktif Meneliti & Berkolaborasi</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- About & Focus Section -->
+    <section id="about" class="section">
+      <div class="container">
+        <div class="section-title">
+          <span class="badge-pill" data-i18n="about_subtitle">Fokus Akademik & Keahlian</span>
+          <h2 data-i18n="about_title">Kombinasi Sains Atmosfer & Rekayasa Lingkungan</h2>
+          <p data-i18n="about_desc">Menggabungkan riset berbasis alam untuk penangkapan karbon dan simulasi numerik presisi tinggi untuk perlindungan mutu udara.</p>
+        </div>
+
+        <div class="about-grid">
+          <div class="about-card">
+            <h3 class="gradient-text"><i class="fa-solid fa-seedling"></i> <span data-i18n="about_focus_title">Pilar Riset Utama</span></h3>
+            <div class="focus-list">
+              <div class="focus-item">
+                <div class="focus-icon"><i class="fa-solid fa-smog"></i></div>
+                <div>
+                  <h4 data-i18n="focus_1_title">Carbon Capture & Biochar</h4>
+                  <p data-i18n="focus_1_desc">Sintesis biochar dari limbah organik dan sludge limbah domestik melalui proses pirolisis untuk kapasitas sekuestrasi CO2 maksimal.</p>
+                </div>
+              </div>
+
+              <div class="focus-item">
+                <div class="focus-icon"><i class="fa-solid fa-wind"></i></div>
+                <div>
+                  <h4 data-i18n="focus_2_title">Pemodelan Kualitas Udara & Cuaca</h4>
+                  <p data-i18n="focus_2_desc">Simulasi numerik sebaran asap karhutla dan pencemar industri menggunakan WRF-Chem, AERMOD, CALPUFF, dan HYSPLIT.</p>
+                </div>
+              </div>
+
+              <div class="focus-item">
+                <div class="focus-icon"><i class="fa-solid fa-chart-line"></i></div>
+                <div>
+                  <h4 data-i18n="focus_3_title">Analisis Spasial & Data Sains</h4>
+                  <p data-i18n="focus_3_desc">Pemrosesan data curah hujan satelit (GSMaP, CHIRPS) dan visualisasi data saintifik menggunakan Python, MATLAB, ArcGIS, & QGIS.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="about-card">
+            <h3><i class="fa-solid fa-gears" style="color: var(--primary);"></i> <span data-i18n="about_skills_title">Keahlian & Perangkat lunak</span></h3>
+            <p style="color: var(--text-muted); margin-bottom: 1.25rem;" data-i18n="about_skills_desc">Perangkat dan metodologi teknis yang digunakan secara rutin dalam kegiatan riset & konsultasi lingkungan:</p>
+            <div class="skills-wrapper" id="skillsContainer"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Experience & Education Section -->
+    <section id="experience" class="section" style="background: var(--bg-secondary);">
+      <div class="container">
+        <div class="section-title">
+          <span class="badge-pill" data-i18n="exp_subtitle">Jejak Langkah Profesional</span>
+          <h2 data-i18n="exp_title">Pendidikan & Pengalaman Kerja</h2>
+        </div>
+
+        <div class="timeline-grid">
+          <!-- Education Column -->
+          <div class="timeline-column">
+            <h3><i class="fa-solid fa-building-columns" style="color: var(--primary);"></i> <span data-i18n="edu_heading">Riwayat Pendidikan</span></h3>
+            <div class="timeline" id="educationTimeline"></div>
+          </div>
+
+          <!-- Work Experience Column -->
+          <div class="timeline-column">
+            <h3><i class="fa-solid fa-briefcase" style="color: var(--accent-teal);"></i> <span data-i18n="work_heading">Pengalaman Kerja & Riset</span></h3>
+            <div class="timeline" id="experienceTimeline"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Research & Publications Section -->
+    <section id="research" class="section">
+      <div class="container">
+        <div class="section-title">
+          <span class="badge-pill" data-i18n="pubs_subtitle">Karya Ilmiah</span>
+          <h2 data-i18n="pubs_title">Publikasi & Hasil Penelitian</h2>
+          <p data-i18n="pubs_desc">Makalah ilmiah terindeks di jurnal internasional dan prosiding konferensi di bidang rekayasa lingkungan dan sains atmosfer.</p>
+        </div>
+
+        <!-- Filter & Search Bar -->
+        <div class="filter-bar">
+          <div class="filter-categories" id="pubFilterCategories"></div>
+          <div class="search-box">
+            <i class="fa-solid fa-magnifying-glass"></i>
+            <input type="text" id="pubSearchInput" placeholder="Cari judul publikasi atau kata kunci..." oninput="renderPublications()">
+          </div>
+        </div>
+
+        <!-- External Profile Buttons -->
+        <div style="display: flex; gap: 1rem; flex-wrap: wrap; margin-bottom: 2rem; justify-content: center;">
+          <a href="https://scholar.google.com/citations?user=UFx9LFYAAAAJ&hl=en" target="_blank" class="btn btn-outline btn-sm">
+            <i class="fa-solid fa-graduation-cap"></i> Google Scholar Profile
+          </a>
+          <a href="https://www.researchgate.net/profile/Ade-Ayu-Oktaviana" target="_blank" class="btn btn-outline btn-sm">
+            <i class="fa-brands fa-researchgate"></i> ResearchGate Profile
+          </a>
+          <a href="https://github.com/Adeayu09" target="_blank" class="btn btn-outline btn-sm">
+            <i class="fa-brands fa-github"></i> GitHub Repository
+          </a>
+        </div>
+
+        <!-- Publications Grid -->
+        <div class="pubs-grid" id="publicationsGrid"></div>
+      </div>
+    </section>
+
+    <!-- Blogspot Section -->
+    <section id="blog" class="section" style="background: var(--bg-secondary);">
+      <div class="container">
+        <div class="section-title">
+          <span class="badge-pill rose" data-i18n="blog_subtitle">Artikel & Catatan Riset</span>
+          <h2 data-i18n="blog_title">Ade Ayu's Blogspot</h2>
+          <p data-i18n="blog_desc">Berbagi edukasi saintifik, wawasan teknologi keberlanjutan, dan catatan perjalanan studi Ph.D.</p>
+        </div>
+
+        <div class="blog-grid" id="blogGrid"></div>
+      </div>
+    </section>
+
+    <!-- Awards & Patents Section -->
+    <section class="section">
+      <div class="container">
+        <div class="section-title">
+          <span class="badge-pill" data-i18n="awards_subtitle">Penghargaan & Paten</span>
+          <h2 data-i18n="awards_title">Pencapaian Akademik & Hak Cipta</h2>
+        </div>
+
+        <div class="awards-grid" id="awardsGrid"></div>
+      </div>
+    </section>
+
+    <!-- Contact Section -->
+    <section id="contact" class="section" style="background: var(--bg-secondary);">
+      <div class="container">
+        <div class="contact-grid">
+          <div class="contact-info">
+            <span class="badge-pill" data-i18n="contact_subtitle">Mari Berkolaborasi</span>
+            <h3 data-i18n="contact_title">Hubungi Ade Ayu Oktaviana</h3>
+            <p data-i18n="contact_desc">Terbuka untuk kolaborasi riset penyerapan karbon, konsultasi pemodelan kualitas udara, dan diskusi ilmiah.</p>
+
+            <div class="contact-links">
+              <div class="contact-item">
+                <div class="contact-icon"><i class="fa-solid fa-envelope"></i></div>
+                <div>
+                  <div style="font-size: 0.8rem; color: var(--text-muted);">Email</div>
+                  <a href="mailto:adeayuoktaviana123@gmail.com" style="font-weight: 600;">adeayuoktaviana123@gmail.com</a>
+                </div>
+              </div>
+
+              <div class="contact-item">
+                <div class="contact-icon"><i class="fa-solid fa-phone"></i></div>
+                <div>
+                  <div style="font-size: 0.8rem; color: var(--text-muted);">Telepon / WhatsApp</div>
+                  <a href="https://wa.me/6285840334370" target="_blank" style="font-weight: 600;">+62 858-4033-4370</a>
+                </div>
+              </div>
+
+              <div class="contact-item">
+                <div class="contact-icon"><i class="fa-solid fa-location-dot"></i></div>
+                <div>
+                  <div style="font-size: 0.8rem; color: var(--text-muted);">Domisili & Kampus</div>
+                  <div style="font-weight: 600;">Pringsewu, Lampung / ITS Surabaya / NTU Taiwan</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <form class="contact-form" onsubmit="handleContactSubmit(event)">
+            <div class="form-group">
+              <label data-i18n="form_name">Nama Lengkap</label>
+              <input type="text" class="form-control" required placeholder="Masukkan nama Anda">
+            </div>
+
+            <div class="form-group">
+              <label data-i18n="form_email">Alamat Email</label>
+              <input type="email" class="form-control" required placeholder="nama@email.com">
+            </div>
+
+            <div class="form-group">
+              <label data-i18n="form_subject">Subjek Pesan</label>
+              <input type="text" class="form-control" required placeholder="Topik diskusi atau kolaborasi">
+            </div>
+
+            <div class="form-group">
+              <label data-i18n="form_message">Pesan Anda</label>
+              <textarea class="form-control" required placeholder="Tuliskan detail pesan Anda di sini..."></textarea>
+            </div>
+
+            <button type="submit" class="btn btn-primary">
+              <i class="fa-solid fa-paper-plane"></i> <span data-i18n="form_send">Kirim Pesan</span>
+            </button>
+          </form>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-grid">
+        <div class="footer-brand">
+          <div class="logo">
+            <div class="logo-icon"><i class="fa-solid fa-leaf"></i></div>
+            <span>Ade Ayu Oktaviana</span>
+          </div>
+          <p data-i18n="footer_desc">Portfolio Profesional & Media Publikasi Karya Ilmiah Teknik Lingkungan & Sains Atmosfer.</p>
+        </div>
+
+        <div class="footer-column">
+          <h4 data-i18n="footer_nav">Navigasi Cepat</h4>
+          <ul>
+            <li><a href="#about" data-i18n="nav_about">Tentang</a></li>
+            <li><a href="#experience" data-i18n="nav_experience">Pengalaman & Edukasi</a></li>
+            <li><a href="#research" data-i18n="nav_research">Publikasi & Riset</a></li>
+            <li><a href="#blog" data-i18n="nav_blog">Blogspot</a></li>
+          </ul>
+        </div>
+
+        <div class="footer-column">
+          <h4 data-i18n="footer_social">Jaringan Akademik</h4>
+          <ul>
+            <li><a href="https://id.linkedin.com/in/ade-ayu-oktaviana-b20981252" target="_blank"><i class="fa-brands fa-linkedin"></i> LinkedIn</a></li>
+            <li><a href="https://scholar.google.com/citations?user=UFx9LFYAAAAJ&hl=en" target="_blank"><i class="fa-solid fa-graduation-cap"></i> Google Scholar</a></li>
+            <li><a href="https://www.researchgate.net/profile/Ade-Ayu-Oktaviana" target="_blank"><i class="fa-brands fa-researchgate"></i> ResearchGate</a></li>
+            <li><a href="https://github.com/Adeayu09" target="_blank"><i class="fa-brands fa-github"></i> GitHub</a></li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="footer-bottom">
+        <div>&copy; 2026 Ade Ayu Oktaviana. All rights reserved.</div>
+        <div>
+          <button class="btn btn-outline btn-sm" onclick="openLoginModal()">
+            <i class="fa-solid fa-gear"></i> Portal Admin CMS
+          </button>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <!-- ==================== MODALS ==================== -->
+
+  <!-- Modal 1: Login Modal -->
+  <div class="modal-overlay" id="loginModal">
+    <div class="modal-card" style="max-width: 420px;">
+      <div class="modal-header">
+        <h3><i class="fa-solid fa-user-lock"></i> Login Admin Portal</h3>
+        <button class="close-modal" onclick="closeLoginModal()">&times;</button>
+      </div>
+      <div class="modal-body">
+        <form onsubmit="handleLoginSubmit(event)">
+          <div class="form-group" style="margin-bottom: 1rem;">
+            <label>Username</label>
+            <input type="text" id="loginUser" class="form-control" placeholder="Default: adeayu" required>
+          </div>
+          <div class="form-group" style="margin-bottom: 1.5rem;">
+            <label>Password</label>
+            <input type="password" id="loginPass" class="form-control" placeholder="Default: admin123" required>
+          </div>
+          <button type="submit" class="btn btn-primary" style="width: 100%;">
+            <i class="fa-solid fa-right-to-bracket"></i> Masuk Admin CMS
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal 2: Admin CMS Dashboard -->
+  <div class="modal-overlay" id="adminModal">
+    <div class="modal-card" style="max-width: 850px;">
+      <div class="modal-header">
+        <h3><i class="fa-solid fa-sliders"></i> CMS Admin Dashboard (Ade Ayu)</h3>
+        <div style="display: flex; gap: 0.5rem; align-items: center;">
+          <button class="btn btn-outline btn-sm" onclick="handleLogout()"><i class="fa-solid fa-arrow-right-from-bracket"></i> Logout</button>
+          <button class="close-modal" onclick="closeAdminModal()">&times;</button>
+        </div>
+      </div>
+      <div class="modal-body">
+        <div class="admin-tabs">
+          <button class="tab-btn active" onclick="switchAdminTab('tabProfile', this)"><i class="fa-solid fa-user-gear"></i> Edit Profil</button>
+          <button class="tab-btn" onclick="switchAdminTab('tabPublications', this)"><i class="fa-solid fa-book"></i> Kelola Publikasi</button>
+          <button class="tab-btn" onclick="switchAdminTab('tabBlogs', this)"><i class="fa-solid fa-newspaper"></i> Kelola Blogspot</button>
+        </div>
+
+        <!-- Tab 1: Profile Editor -->
+        <div id="tabProfile" class="tab-content active">
+          <form onsubmit="saveProfileCMS(event)">
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+              <div class="form-group">
+                <label>Nama Lengkap</label>
+                <input type="text" id="cmsName" class="form-control" required>
+              </div>
+              <div class="form-group">
+                <label>URL Photo Profile (Avatar)</label>
+                <input type="text" id="cmsAvatar" class="form-control" required>
+              </div>
+            </div>
+
+            <div class="form-group" style="margin-top: 1rem;">
+              <label>Judul / Headings (Bahasa Indonesia)</label>
+              <input type="text" id="cmsTitleId" class="form-control" required>
+            </div>
+
+            <div class="form-group" style="margin-top: 1rem;">
+              <label>Judul / Headings (English)</label>
+              <input type="text" id="cmsTitleEn" class="form-control" required>
+            </div>
+
+            <div class="form-group" style="margin-top: 1rem;">
+              <label>Bio Singkat (Bahasa Indonesia)</label>
+              <textarea id="cmsBioId" class="form-control" rows="3" required></textarea>
+            </div>
+
+            <div class="form-group" style="margin-top: 1rem;">
+              <label>Bio Singkat (English)</label>
+              <textarea id="cmsBioEn" class="form-control" rows="3" required></textarea>
+            </div>
+
+            <div style="margin-top: 1.5rem; display: flex; justify-content: space-between; align-items: center;">
+              <button type="button" class="btn btn-outline btn-sm" onclick="resetAllDataToDefault()"><i class="fa-solid fa-rotate"></i> Reset Ke Default</button>
+              <button type="submit" class="btn btn-primary"><i class="fa-solid fa-floppy-disk"></i> Simpan Perubahan Profil</button>
+            </div>
+          </form>
+        </div>
+
+        <!-- Tab 2: Publications Manager -->
+        <div id="tabPublications" class="tab-content">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+            <h4 style="font-size: 1.1rem;">Daftar Publikasi</h4>
+            <button class="btn btn-primary btn-sm" onclick="openAddPubForm()"><i class="fa-solid fa-plus"></i> Tambah Publikasi Baru</button>
+          </div>
+
+          <!-- Add / Edit Pub Subform -->
+          <div id="pubFormWrapper" style="display: none; background: var(--bg-primary); padding: 1.25rem; border-radius: var(--radius-md); border: 1px solid var(--border-color); margin-bottom: 1.5rem;">
+            <h5 id="pubFormTitle" style="margin-bottom: 1rem;">Tambah Publikasi</h5>
+            <form onsubmit="savePubItem(event)">
+              <input type="hidden" id="pubId">
+              <div class="form-group">
+                <label>Judul Publikasi (Title)</label>
+                <input type="text" id="pubTitle" class="form-control" required>
+              </div>
+
+              <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1rem; margin-top: 1rem;">
+                <div class="form-group">
+                  <label>Tahun (Year)</label>
+                  <input type="text" id="pubYear" class="form-control" required>
+                </div>
+                <div class="form-group">
+                  <label>Jurnal / Publisher</label>
+                  <input type="text" id="pubJournal" class="form-control" required>
+                </div>
+                <div class="form-group">
+                  <label>Kategori</label>
+                  <select id="pubCategory" class="form-control">
+                    <option value="Biochar & Carbon Capture">Biochar & Carbon Capture</option>
+                    <option value="Air Quality & WRF-Chem">Air Quality & WRF-Chem</option>
+                    <option value="Weather & Climate">Weather & Climate</option>
+                  </select>
+                </div>
+              </div>
+
+              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-top: 1rem;">
+                <div class="form-group">
+                  <label>DOI / Reference Number</label>
+                  <input type="text" id="pubDoi" class="form-control">
+                </div>
+                <div class="form-group">
+                  <label>Link Publikasi (URL)</label>
+                  <input type="text" id="pubLink" class="form-control" required>
+                </div>
+              </div>
+
+              <div class="form-group" style="margin-top: 1rem;">
+                <label>Abstrak (Ringkasan)</label>
+                <textarea id="pubAbstract" class="form-control" rows="3" required></textarea>
+              </div>
+
+              <div style="margin-top: 1rem; display: flex; gap: 0.5rem; justify-content: flex-end;">
+                <button type="button" class="btn btn-outline btn-sm" onclick="cancelPubForm()">Batal</button>
+                <button type="submit" class="btn btn-primary btn-sm"><i class="fa-solid fa-check"></i> Simpan Publikasi</button>
+              </div>
+            </form>
+          </div>
+
+          <div id="cmsPubList" style="display: flex; flex-direction: column; gap: 0.75rem;"></div>
+        </div>
+
+        <!-- Tab 3: Blogspot Manager -->
+        <div id="tabBlogs" class="tab-content">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+            <h4 style="font-size: 1.1rem;">Daftar Artikel Blog</h4>
+            <button class="btn btn-primary btn-sm" onclick="openAddBlogForm()"><i class="fa-solid fa-plus"></i> Post Artikel Baru</button>
+          </div>
+
+          <!-- Add / Edit Blog Subform -->
+          <div id="blogFormWrapper" style="display: none; background: var(--bg-primary); padding: 1.25rem; border-radius: var(--radius-md); border: 1px solid var(--border-color); margin-bottom: 1.5rem;">
+            <h5 id="blogFormTitle" style="margin-bottom: 1rem;">Tambah Artikel Blog</h5>
+            <form onsubmit="saveBlogItem(event)">
+              <input type="hidden" id="blogId">
+              <div class="form-group">
+                <label>Judul Artikel (ID)</label>
+                <input type="text" id="blogTitleId" class="form-control" required>
+              </div>
+              <div class="form-group" style="margin-top: 0.75rem;">
+                <label>Judul Artikel (EN)</label>
+                <input type="text" id="blogTitleEn" class="form-control" required>
+              </div>
+
+              <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1rem; margin-top: 1rem;">
+                <div class="form-group">
+                  <label>Kategori</label>
+                  <input type="text" id="blogCategory" class="form-control" required placeholder="mis. Carbon Capture">
+                </div>
+                <div class="form-group">
+                  <label>Estimasi Baca (Read Time)</label>
+                  <input type="text" id="blogReadTime" class="form-control" required placeholder="5 min read">
+                </div>
+                <div class="form-group">
+                  <label>URL Gambar Banner</label>
+                  <input type="text" id="blogImage" class="form-control" required placeholder="assets/images/biochar.png">
+                </div>
+              </div>
+
+              <div class="form-group" style="margin-top: 1rem;">
+                <label>Kutipan Singkat (ID)</label>
+                <input type="text" id="blogExcerptId" class="form-control" required>
+              </div>
+
+              <div class="form-group" style="margin-top: 1rem;">
+                <label>Konten Lengkap (ID)</label>
+                <textarea id="blogContentId" class="form-control" rows="6" required></textarea>
+              </div>
+
+              <div class="form-group" style="margin-top: 1rem;">
+                <label>Konten Lengkap (EN)</label>
+                <textarea id="blogContentEn" class="form-control" rows="6" required></textarea>
+              </div>
+
+              <div style="margin-top: 1rem; display: flex; gap: 0.5rem; justify-content: flex-end;">
+                <button type="button" class="btn btn-outline btn-sm" onclick="cancelBlogForm()">Batal</button>
+                <button type="submit" class="btn btn-primary btn-sm"><i class="fa-solid fa-upload"></i> Publish Artikel</button>
+              </div>
+            </form>
+          </div>
+
+          <div id="cmsBlogList" style="display: flex; flex-direction: column; gap: 0.75rem;"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal 3: Blog Article Reader View -->
+  <div class="modal-overlay" id="blogReaderModal">
+    <div class="modal-card" style="max-width: 800px;">
+      <div class="modal-header">
+        <span class="badge-pill" id="readerCategory"></span>
+        <button class="close-modal" onclick="closeBlogReaderModal()">&times;</button>
+      </div>
+      <div class="modal-body" style="padding: 2.5rem;">
+        <h2 id="readerTitle" style="font-size: 2rem; margin-bottom: 0.75rem;"></h2>
+        <div style="display: flex; gap: 1rem; font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1.5rem;">
+          <span id="readerDate"><i class="fa-regular fa-calendar"></i> </span>
+          <span id="readerReadTime"><i class="fa-regular fa-clock"></i> </span>
+        </div>
+        <div style="height: 280px; border-radius: var(--radius-md); overflow: hidden; margin-bottom: 2rem;">
+          <img id="readerImage" src="" alt="Blog Cover" style="width: 100%; height: 100%; object-fit: cover;">
+        </div>
+        <div id="readerContent" style="line-height: 1.8; font-size: 1.05rem;"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Custom App JS -->
+  <script type="module" src="js/app.js"></script>
+</body>
+</html>

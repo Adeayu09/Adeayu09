@@ -5,6 +5,8 @@
 const STORAGE_KEY_PROFILE = 'adeayu_portfolio_profile_v1';
 const STORAGE_KEY_PUBS = 'adeayu_portfolio_pubs_v1';
 const STORAGE_KEY_BLOGS = 'adeayu_portfolio_blogs_v1';
+const STORAGE_KEY_EXP = 'adeayu_portfolio_exp_v1';
+const STORAGE_KEY_EDU = 'adeayu_portfolio_edu_v1';
 const STORAGE_KEY_AUTH = 'adeayu_portfolio_auth_v1';
 
 export const defaultProfile = {
@@ -187,6 +189,7 @@ High-resolution air quality modeling empowers environmental authorities to draft
 
 export const defaultExperiences = [
   {
+    id: "exp-1",
     role_id: "Peneliti (Researcher)",
     role_en: "Researcher",
     institution: "National Taiwan University (NTU)",
@@ -195,6 +198,7 @@ export const defaultExperiences = [
     desc_en: "Conducting scientific research on developing biochar materials derived from Indonesian waste biomass for carbon capture technologies."
   },
   {
+    id: "exp-2",
     role_id: "Penasihat Teknis Pemodelan Udara",
     role_en: "Air Modeling Advisor",
     institution: "PT Lensa Makmur Sejahtera",
@@ -203,6 +207,7 @@ export const defaultExperiences = [
     desc_en: "Provided technical expertise and recommendations for air pollutant dispersion simulations using the WRF Model."
   },
   {
+    id: "exp-3",
     role_id: "Konsultan Lingkungan",
     role_en: "Environmental Consultant",
     institution: "PT Lensa Makmur Sejahtera",
@@ -211,6 +216,7 @@ export const defaultExperiences = [
     desc_en: "Assisted in drafting Air Quality Management and Protection Plan (RPPMU) policy documents."
   },
   {
+    id: "exp-4",
     role_id: "Magang Riset Kualitas Udara",
     role_en: "Air Quality Research Intern",
     institution: "Global Atmosphere Watch (GAW)",
@@ -219,6 +225,7 @@ export const defaultExperiences = [
     desc_en: "Tropospheric ozone chemical research, meteorological data inventorying, and real-time air quality forecasting."
   },
   {
+    id: "exp-5",
     role_id: "Asisten Pengajar & Praktikum",
     role_en: "Teaching & Lab Assistant",
     institution: "ITB & ITERA",
@@ -230,6 +237,7 @@ export const defaultExperiences = [
 
 export const defaultEducation = [
   {
+    id: "edu-1",
     degree_id: "Doktor (Ph.D.) & Magister (M.T.) Teknik Lingkungan",
     degree_en: "Ph.D. Candidate & Master's in Environmental Engineering",
     institution: "Institut Teknologi Sepuluh Nopember (ITS)",
@@ -239,6 +247,7 @@ export const defaultEducation = [
     detail_en: "Research focus: Carbon Capture with Biochar, Air Pollution Modeling (WRF-Chem, AERMOD, CALPUFF), and Climate Change Mitigation Strategies."
   },
   {
+    id: "edu-2",
     degree_id: "Sarjana Sains (S.Si.) Sains Atmosfer dan Keplanetan",
     degree_en: "B.S. in Atmospheric and Planetary Science",
     institution: "Institut Teknologi Sumatera (ITERA)",
@@ -302,7 +311,6 @@ export function getStoredProfile() {
     const data = localStorage.getItem(STORAGE_KEY_PROFILE);
     if (!data) return defaultProfile;
     const parsed = JSON.parse(data);
-    // Deep merge to ensure all fields are maintained even when defaultProfile expands
     return {
       ...defaultProfile,
       ...parsed,
@@ -325,7 +333,6 @@ export function getStoredPublications() {
     const userPubs = JSON.parse(data);
     if (!Array.isArray(userPubs) || userPubs.length === 0) return defaultPublications;
 
-    // Smart Merge: Preserve user customized/edited/added pubs, and merge any new default publications from code
     const userPubIds = new Set(userPubs.map(p => p.id));
     const missingDefaults = defaultPublications.filter(p => !userPubIds.has(p.id));
     return [...userPubs, ...missingDefaults];
@@ -346,7 +353,6 @@ export function getStoredBlogs() {
     const userBlogs = JSON.parse(data);
     if (!Array.isArray(userBlogs) || userBlogs.length === 0) return defaultBlogs;
 
-    // Smart Merge: Preserve user customized/edited/added blogs, and merge any new default blogs from code
     const userBlogIds = new Set(userBlogs.map(b => b.id));
     const missingDefaults = defaultBlogs.filter(b => !userBlogIds.has(b.id));
     return [...userBlogs, ...missingDefaults];
@@ -360,7 +366,47 @@ export function saveStoredBlogs(blogs) {
   localStorage.setItem(STORAGE_KEY_BLOGS, JSON.stringify(blogs));
 }
 
-export function generateDataJsFileContent(profile, pubs, blogs) {
+export function getStoredExperiences() {
+  try {
+    const data = localStorage.getItem(STORAGE_KEY_EXP);
+    if (!data) return defaultExperiences;
+    const userExps = JSON.parse(data);
+    if (!Array.isArray(userExps) || userExps.length === 0) return defaultExperiences;
+
+    const userExpIds = new Set(userExps.map(e => e.id));
+    const missingDefaults = defaultExperiences.filter(e => !userExpIds.has(e.id));
+    return [...userExps, ...missingDefaults];
+  } catch (e) {
+    console.error("Error reading stored experiences:", e);
+    return defaultExperiences;
+  }
+}
+
+export function saveStoredExperiences(experiences) {
+  localStorage.setItem(STORAGE_KEY_EXP, JSON.stringify(experiences));
+}
+
+export function getStoredEducation() {
+  try {
+    const data = localStorage.getItem(STORAGE_KEY_EDU);
+    if (!data) return defaultEducation;
+    const userEdus = JSON.parse(data);
+    if (!Array.isArray(userEdus) || userEdus.length === 0) return defaultEducation;
+
+    const userEduIds = new Set(userEdus.map(e => e.id));
+    const missingDefaults = defaultEducation.filter(e => !userEduIds.has(e.id));
+    return [...userEdus, ...missingDefaults];
+  } catch (e) {
+    console.error("Error reading stored education:", e);
+    return defaultEducation;
+  }
+}
+
+export function saveStoredEducation(education) {
+  localStorage.setItem(STORAGE_KEY_EDU, JSON.stringify(education));
+}
+
+export function generateDataJsFileContent(profile, pubs, blogs, experiences, education) {
   return `/**
  * Initial dataset and bilingual dictionary for Ade Ayu Oktaviana Portfolio
  * Auto-generated & Synced via CMS on ${new Date().toLocaleString('id-ID')}
@@ -369,6 +415,8 @@ export function generateDataJsFileContent(profile, pubs, blogs) {
 const STORAGE_KEY_PROFILE = 'adeayu_portfolio_profile_v1';
 const STORAGE_KEY_PUBS = 'adeayu_portfolio_pubs_v1';
 const STORAGE_KEY_BLOGS = 'adeayu_portfolio_blogs_v1';
+const STORAGE_KEY_EXP = 'adeayu_portfolio_exp_v1';
+const STORAGE_KEY_EDU = 'adeayu_portfolio_edu_v1';
 const STORAGE_KEY_AUTH = 'adeayu_portfolio_auth_v1';
 
 export const defaultProfile = ${JSON.stringify(profile || defaultProfile, null, 2)};
@@ -377,9 +425,9 @@ export const defaultPublications = ${JSON.stringify(pubs || defaultPublications,
 
 export const defaultBlogs = ${JSON.stringify(blogs || defaultBlogs, null, 2)};
 
-export const defaultExperiences = ${JSON.stringify(defaultExperiences, null, 2)};
+export const defaultExperiences = ${JSON.stringify(experiences || defaultExperiences, null, 2)};
 
-export const defaultEducation = ${JSON.stringify(defaultEducation, null, 2)};
+export const defaultEducation = ${JSON.stringify(education || defaultEducation, null, 2)};
 
 export const defaultAwards = ${JSON.stringify(defaultAwards, null, 2)};
 
@@ -441,10 +489,48 @@ export function saveStoredBlogs(blogs) {
   localStorage.setItem(STORAGE_KEY_BLOGS, JSON.stringify(blogs));
 }
 
+export function getStoredExperiences() {
+  try {
+    const data = localStorage.getItem(STORAGE_KEY_EXP);
+    if (!data) return defaultExperiences;
+    const userExps = JSON.parse(data);
+    if (!Array.isArray(userExps) || userExps.length === 0) return defaultExperiences;
+    const userExpIds = new Set(userExps.map(e => e.id));
+    const missingDefaults = defaultExperiences.filter(e => !userExpIds.has(e.id));
+    return [...userExps, ...missingDefaults];
+  } catch (e) {
+    return defaultExperiences;
+  }
+}
+
+export function saveStoredExperiences(experiences) {
+  localStorage.setItem(STORAGE_KEY_EXP, JSON.stringify(experiences));
+}
+
+export function getStoredEducation() {
+  try {
+    const data = localStorage.getItem(STORAGE_KEY_EDU);
+    if (!data) return defaultEducation;
+    const userEdus = JSON.parse(data);
+    if (!Array.isArray(userEdus) || userEdus.length === 0) return defaultEducation;
+    const userEduIds = new Set(userEdus.map(e => e.id));
+    const missingDefaults = defaultEducation.filter(e => !userEduIds.has(e.id));
+    return [...userEdus, ...missingDefaults];
+  } catch (e) {
+    return defaultEducation;
+  }
+}
+
+export function saveStoredEducation(education) {
+  localStorage.setItem(STORAGE_KEY_EDU, JSON.stringify(education));
+}
+
 export function resetAllDataToDefault() {
   localStorage.removeItem(STORAGE_KEY_PROFILE);
   localStorage.removeItem(STORAGE_KEY_PUBS);
   localStorage.removeItem(STORAGE_KEY_BLOGS);
+  localStorage.removeItem(STORAGE_KEY_EXP);
+  localStorage.removeItem(STORAGE_KEY_EDU);
   location.reload();
 }
 `;
@@ -454,5 +540,7 @@ export function resetAllDataToDefault() {
   localStorage.removeItem(STORAGE_KEY_PROFILE);
   localStorage.removeItem(STORAGE_KEY_PUBS);
   localStorage.removeItem(STORAGE_KEY_BLOGS);
+  localStorage.removeItem(STORAGE_KEY_EXP);
+  localStorage.removeItem(STORAGE_KEY_EDU);
   location.reload();
 }

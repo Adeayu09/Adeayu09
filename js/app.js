@@ -127,10 +127,14 @@ document.addEventListener('DOMContentLoaded', () => {
   initTheme();
   initLanguage();
   renderAll();
-  updateAuthUI();
 
-  // Attach global reset listener
-  window.resetAllDataToDefault = resetAllDataToDefault;
+  // Secret keyboard shortcut to open admin login: Ctrl + Shift + A
+  document.addEventListener('keydown', (e) => {
+    if (e.ctrlKey && e.shiftKey && e.key === 'A') {
+      e.preventDefault();
+      openLoginModal();
+    }
+  });
 });
 
 // Theme Switcher
@@ -400,20 +404,36 @@ window.closeLoginModal = function() {
   document.getElementById('loginModal').classList.remove('active');
 };
 
-window.handleLoginSubmit = function(e) {
+// SHA-256 hash helper (Web Crypto API)
+async function sha256(message) {
+  const msgBuffer = new TextEncoder().encode(message);
+  const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
+  return Array.from(new Uint8Array(hashBuffer)).map(b => b.toString(16).padStart(2, '0')).join('');
+}
+
+// Pre-computed SHA-256 hash values (DO NOT store plaintext here)
+// username: adeayu  → sha256('adeayu')
+// password: set your own via browser console: sha256('yourpassword').then(console.log)
+const AUTH_USER_HASH = '5a8dd77d391e8ce559cbfd53d769e0c7c06505cea8cbbb509955d72fd5e6719f'; // sha256('adeayu')
+const AUTH_PASS_HASH = '240be518fabd2724ddb6f04eeb1da5967448d7e831c08c8fa822809f74c720a9'; // sha256('admin123')
+
+
+window.handleLoginSubmit = async function(e) {
   e.preventDefault();
-  const user = document.getElementById('loginUser').value;
+  const user = document.getElementById('loginUser').value.trim();
   const pass = document.getElementById('loginPass').value;
 
-  if (user === 'adeayu' && pass === 'admin123') {
+  const userHash = await sha256(user);
+  const passHash = await sha256(pass);
+
+  if (userHash === AUTH_USER_HASH && passHash === AUTH_PASS_HASH) {
     state.isLoggedIn = true;
     localStorage.setItem('adeayu_logged_in', 'true');
     closeLoginModal();
-    updateAuthUI();
     openAdminModal();
-    showToast("Berhasil login sebagai Admin Ade Ayu!");
+    showToast('Berhasil masuk ke Admin CMS!');
   } else {
-    showToast("Username atau Password salah!", "error");
+    showToast('Username atau Password salah!', 'error');
   }
 };
 
@@ -421,16 +441,9 @@ window.handleLogout = function() {
   state.isLoggedIn = false;
   localStorage.setItem('adeayu_logged_in', 'false');
   closeAdminModal();
-  updateAuthUI();
-  showToast("Anda telah logout.");
+  showToast('Anda telah logout.');
 };
 
-function updateAuthUI() {
-  const btnText = document.getElementById('loginBtnText');
-  if (btnText) {
-    btnText.textContent = state.isLoggedIn ? i18n[state.lang].btn_admin_panel : i18n[state.lang].btn_login;
-  }
-}
 
 // ==================== ADMIN CMS DASHBOARD ====================
 window.openAdminModal = function() {

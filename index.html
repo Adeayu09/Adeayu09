@@ -49,9 +49,9 @@
           <i class="fa-solid fa-moon"></i>
         </button>
 
-        <!-- Admin Login Button -->
-        <button class="btn btn-primary btn-sm" id="openLoginBtn" onclick="openLoginModal()">
-          <i class="fa-solid fa-user-lock"></i> <span id="loginBtnText" data-i18n="btn_login">Login Admin</span>
+        <!-- Admin Login Button: hidden from public, accessible via Ctrl+Shift+A -->
+        <button class="btn btn-primary btn-sm" id="openLoginBtn" onclick="openLoginModal()" style="display:none;" aria-hidden="true">
+          <i class="fa-solid fa-user-lock"></i> <span id="loginBtnText"></span>
         </button>
 
         <!-- Mobile Drawer Menu Toggle -->
@@ -336,14 +336,12 @@
         </div>
       </div>
 
+
       <div class="footer-bottom">
         <div>&copy; 2026 Ade Ayu Oktaviana. All rights reserved.</div>
-        <div>
-          <button class="btn btn-outline btn-sm" onclick="openLoginModal()">
-            <i class="fa-solid fa-gear"></i> Portal Admin CMS
-          </button>
-        </div>
+        <div></div>
       </div>
+
     </div>
   </footer>
 
@@ -360,11 +358,11 @@
         <form onsubmit="handleLoginSubmit(event)">
           <div class="form-group" style="margin-bottom: 1rem;">
             <label>Username</label>
-            <input type="text" id="loginUser" class="form-control" placeholder="Default: adeayu" required>
+            <input type="text" id="loginUser" class="form-control" autocomplete="username" required>
           </div>
           <div class="form-group" style="margin-bottom: 1.5rem;">
             <label>Password</label>
-            <input type="password" id="loginPass" class="form-control" placeholder="Default: admin123" required>
+            <input type="password" id="loginPass" class="form-control" autocomplete="current-password" required>
           </div>
           <button type="submit" class="btn btn-primary" style="width: 100%;">
             <i class="fa-solid fa-right-to-bracket"></i> Masuk Admin CMS

@@ -296,10 +296,22 @@ export const defaultSkills = [
   { name: "UI/UX Design (Figma)", category: "Design" }
 ];
 
-// LocalStorage Helper functions
+// LocalStorage Helper functions with Smart Merge
 export function getStoredProfile() {
-  const data = localStorage.getItem(STORAGE_KEY_PROFILE);
-  return data ? JSON.parse(data) : defaultProfile;
+  try {
+    const data = localStorage.getItem(STORAGE_KEY_PROFILE);
+    if (!data) return defaultProfile;
+    const parsed = JSON.parse(data);
+    // Deep merge to ensure all fields are maintained even when defaultProfile expands
+    return {
+      ...defaultProfile,
+      ...parsed,
+      stats: parsed.stats && parsed.stats.length ? parsed.stats : defaultProfile.stats
+    };
+  } catch (e) {
+    console.error("Error reading stored profile:", e);
+    return defaultProfile;
+  }
 }
 
 export function saveStoredProfile(profile) {
@@ -307,8 +319,20 @@ export function saveStoredProfile(profile) {
 }
 
 export function getStoredPublications() {
-  const data = localStorage.getItem(STORAGE_KEY_PUBS);
-  return data ? JSON.parse(data) : defaultPublications;
+  try {
+    const data = localStorage.getItem(STORAGE_KEY_PUBS);
+    if (!data) return defaultPublications;
+    const userPubs = JSON.parse(data);
+    if (!Array.isArray(userPubs) || userPubs.length === 0) return defaultPublications;
+
+    // Smart Merge: Preserve user customized/edited/added pubs, and merge any new default publications from code
+    const userPubIds = new Set(userPubs.map(p => p.id));
+    const missingDefaults = defaultPublications.filter(p => !userPubIds.has(p.id));
+    return [...userPubs, ...missingDefaults];
+  } catch (e) {
+    console.error("Error reading stored publications:", e);
+    return defaultPublications;
+  }
 }
 
 export function saveStoredPublications(pubs) {
@@ -316,12 +340,114 @@ export function saveStoredPublications(pubs) {
 }
 
 export function getStoredBlogs() {
-  const data = localStorage.getItem(STORAGE_KEY_BLOGS);
-  return data ? JSON.parse(data) : defaultBlogs;
+  try {
+    const data = localStorage.getItem(STORAGE_KEY_BLOGS);
+    if (!data) return defaultBlogs;
+    const userBlogs = JSON.parse(data);
+    if (!Array.isArray(userBlogs) || userBlogs.length === 0) return defaultBlogs;
+
+    // Smart Merge: Preserve user customized/edited/added blogs, and merge any new default blogs from code
+    const userBlogIds = new Set(userBlogs.map(b => b.id));
+    const missingDefaults = defaultBlogs.filter(b => !userBlogIds.has(b.id));
+    return [...userBlogs, ...missingDefaults];
+  } catch (e) {
+    console.error("Error reading stored blogs:", e);
+    return defaultBlogs;
+  }
 }
 
 export function saveStoredBlogs(blogs) {
   localStorage.setItem(STORAGE_KEY_BLOGS, JSON.stringify(blogs));
+}
+
+export function generateDataJsFileContent(profile, pubs, blogs) {
+  return `/**
+ * Initial dataset and bilingual dictionary for Ade Ayu Oktaviana Portfolio
+ * Auto-generated & Synced via CMS on ${new Date().toLocaleString('id-ID')}
+ */
+
+const STORAGE_KEY_PROFILE = 'adeayu_portfolio_profile_v1';
+const STORAGE_KEY_PUBS = 'adeayu_portfolio_pubs_v1';
+const STORAGE_KEY_BLOGS = 'adeayu_portfolio_blogs_v1';
+const STORAGE_KEY_AUTH = 'adeayu_portfolio_auth_v1';
+
+export const defaultProfile = ${JSON.stringify(profile || defaultProfile, null, 2)};
+
+export const defaultPublications = ${JSON.stringify(pubs || defaultPublications, null, 2)};
+
+export const defaultBlogs = ${JSON.stringify(blogs || defaultBlogs, null, 2)};
+
+export const defaultExperiences = ${JSON.stringify(defaultExperiences, null, 2)};
+
+export const defaultEducation = ${JSON.stringify(defaultEducation, null, 2)};
+
+export const defaultAwards = ${JSON.stringify(defaultAwards, null, 2)};
+
+export const defaultSkills = ${JSON.stringify(defaultSkills, null, 2)};
+
+// LocalStorage Helper functions with Smart Merge
+export function getStoredProfile() {
+  try {
+    const data = localStorage.getItem(STORAGE_KEY_PROFILE);
+    if (!data) return defaultProfile;
+    const parsed = JSON.parse(data);
+    return {
+      ...defaultProfile,
+      ...parsed,
+      stats: parsed.stats && parsed.stats.length ? parsed.stats : defaultProfile.stats
+    };
+  } catch (e) {
+    return defaultProfile;
+  }
+}
+
+export function saveStoredProfile(profile) {
+  localStorage.setItem(STORAGE_KEY_PROFILE, JSON.stringify(profile));
+}
+
+export function getStoredPublications() {
+  try {
+    const data = localStorage.getItem(STORAGE_KEY_PUBS);
+    if (!data) return defaultPublications;
+    const userPubs = JSON.parse(data);
+    if (!Array.isArray(userPubs) || userPubs.length === 0) return defaultPublications;
+    const userPubIds = new Set(userPubs.map(p => p.id));
+    const missingDefaults = defaultPublications.filter(p => !userPubIds.has(p.id));
+    return [...userPubs, ...missingDefaults];
+  } catch (e) {
+    return defaultPublications;
+  }
+}
+
+export function saveStoredPublications(pubs) {
+  localStorage.setItem(STORAGE_KEY_PUBS, JSON.stringify(pubs));
+}
+
+export function getStoredBlogs() {
+  try {
+    const data = localStorage.getItem(STORAGE_KEY_BLOGS);
+    if (!data) return defaultBlogs;
+    const userBlogs = JSON.parse(data);
+    if (!Array.isArray(userBlogs) || userBlogs.length === 0) return defaultBlogs;
+    const userBlogIds = new Set(userBlogs.map(b => b.id));
+    const missingDefaults = defaultBlogs.filter(b => !userBlogIds.has(b.id));
+    return [...userBlogs, ...missingDefaults];
+  } catch (e) {
+    return defaultBlogs;
+  }
+}
+
+export function saveStoredBlogs(blogs) {
+  localStorage.setItem(STORAGE_KEY_BLOGS, JSON.stringify(blogs));
+}
+
+export function resetAllDataToDefault() {
+  localStorage.removeItem(STORAGE_KEY_PROFILE);
+  localStorage.removeItem(STORAGE_KEY_PUBS);
+  localStorage.removeItem(STORAGE_KEY_BLOGS);
+  location.reload();
+}
+`;
 }
 
 export function resetAllDataToDefault() {

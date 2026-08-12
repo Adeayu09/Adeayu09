@@ -693,6 +693,8 @@
             Kelola Publikasi</button>
           <button class="tab-btn" onclick="switchAdminTab('tabBlogs', this)"><i class="fa-solid fa-newspaper"></i>
             Kelola Blogspot</button>
+          <button class="tab-btn" onclick="switchAdminTab('tabSync', this)"><i class="fa-solid fa-floppy-disk"></i>
+            Ekspor & Simpan ke Kode</button>
         </div>
 
         <!-- Tab 1: Profile Editor -->
@@ -778,10 +780,10 @@
               <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1rem; margin-top: 1rem;">
                 <div class="form-group">
                   <label>Tahun (Year)</label>
-                  <input type="text" id="pubYear" class="form-control" required>
+                  <input type="text" id="pubYear" class="form-control" required placeholder="2025">
                 </div>
                 <div class="form-group">
-                  <label>Jurnal / Publisher</label>
+                  <label>Nama Jurnal / Konferensi</label>
                   <input type="text" id="pubJournal" class="form-control" required>
                 </div>
                 <div class="form-group">
@@ -796,17 +798,18 @@
 
               <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-top: 1rem;">
                 <div class="form-group">
-                  <label>DOI / Reference Number</label>
-                  <input type="text" id="pubDoi" class="form-control">
+                  <label>DOI (Opsional)</label>
+                  <input type="text" id="pubDoi" class="form-control" placeholder="10.1016/...">
                 </div>
                 <div class="form-group">
-                  <label>Link Publikasi (URL)</label>
-                  <input type="text" id="pubLink" class="form-control" required>
+                  <label>Link Artikel / Jurnal</label>
+                  <input type="url" id="pubLink" class="form-control" required
+                    placeholder="https://doi.org/...">
                 </div>
               </div>
 
               <div class="form-group" style="margin-top: 1rem;">
-                <label>Abstrak (Ringkasan)</label>
+                <label>Abstrak / Ringkasan</label>
                 <textarea id="pubAbstract" class="form-control" rows="3" required></textarea>
               </div>
 
@@ -821,7 +824,7 @@
           <div id="cmsPubList" style="display: flex; flex-direction: column; gap: 0.75rem;"></div>
         </div>
 
-        <!-- Tab 3: Blogspot Manager -->
+        <!-- Tab 3: Blog Posts Manager -->
         <div id="tabBlogs" class="tab-content">
           <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
             <h4 style="font-size: 1.1rem;">Daftar Artikel Blog</h4>
@@ -835,22 +838,25 @@
             <h5 id="blogFormTitle" style="margin-bottom: 1rem;">Tambah Artikel Blog</h5>
             <form onsubmit="saveBlogItem(event)">
               <input type="hidden" id="blogId">
-              <div class="form-group">
-                <label>Judul Artikel (ID)</label>
-                <input type="text" id="blogTitleId" class="form-control" required>
-              </div>
-              <div class="form-group" style="margin-top: 0.75rem;">
-                <label>Judul Artikel (EN)</label>
-                <input type="text" id="blogTitleEn" class="form-control" required>
+              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                <div class="form-group">
+                  <label>Judul Artikel (ID)</label>
+                  <input type="text" id="blogTitleId" class="form-control" required>
+                </div>
+                <div class="form-group">
+                  <label>Judul Artikel (EN)</label>
+                  <input type="text" id="blogTitleEn" class="form-control" required>
+                </div>
               </div>
 
               <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1rem; margin-top: 1rem;">
                 <div class="form-group">
                   <label>Kategori</label>
-                  <input type="text" id="blogCategory" class="form-control" required placeholder="mis. Carbon Capture">
+                  <input type="text" id="blogCategory" class="form-control" required
+                    placeholder="Biochar & Carbon Capture">
                 </div>
                 <div class="form-group">
-                  <label>Estimasi Baca (Read Time)</label>
+                  <label>Estimasi Baca</label>
                   <input type="text" id="blogReadTime" class="form-control" required placeholder="5 min read">
                 </div>
                 <div class="form-group">
@@ -861,8 +867,8 @@
               </div>
 
               <div class="form-group" style="margin-top: 1rem;">
-                <label>Kutipan Singkat (ID)</label>
-                <input type="text" id="blogExcerptId" class="form-control" required>
+                <label>Ringkasan / Excerpt</label>
+                <textarea id="blogExcerptId" class="form-control" rows="2" required></textarea>
               </div>
 
               <div class="form-group" style="margin-top: 1rem;">
@@ -884,6 +890,40 @@
           </div>
 
           <div id="cmsBlogList" style="display: flex; flex-direction: column; gap: 0.75rem;"></div>
+        </div>
+
+        <!-- Tab 4: Sync & Code Export -->
+        <div id="tabSync" class="tab-content">
+          <div style="background: var(--bg-primary); padding: 1.35rem; border-radius: var(--radius-md); border: 1px solid var(--border-color); margin-bottom: 1.25rem;">
+            <h4 style="font-size: 1.1rem; margin-bottom: 0.6rem; color: var(--primary); display: flex; align-items: center; gap: 0.5rem;">
+              <i class="fa-solid fa-shield-halved"></i> Sinkronisasi Data Permanen ke Kodingan Project
+            </h4>
+            <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.6; margin-bottom: 1.2rem;">
+              Perubahan CMS disimpan di peramban (browser) Anda. Agar perubahan (profil, publikasi, artikel blog) <strong>100% tersimpan permanen di GitHub Pages & kodingan</strong> saat Anda mengupdate fitur web, klik tombol di bawah untuk mengunduh file <code>data.js</code> dan ganti file <code>js/data.js</code> di project Anda.
+            </p>
+
+            <div style="display: flex; gap: 0.75rem; flex-wrap: wrap; margin-bottom: 1.2rem;">
+              <button type="button" class="btn btn-primary btn-sm" onclick="downloadDataJsFile()">
+                <i class="fa-solid fa-file-code"></i> Download File data.js
+              </button>
+              <button type="button" class="btn btn-outline btn-sm" onclick="copyDataJsToClipboard()">
+                <i class="fa-solid fa-copy"></i> Salin Kode data.js
+              </button>
+              <button type="button" class="btn btn-outline btn-sm" onclick="downloadBackupJson()">
+                <i class="fa-solid fa-download"></i> Unduh Backup JSON
+              </button>
+            </div>
+
+            <!-- Import Backup JSON Widget -->
+            <div style="margin-top: 1.25rem; padding-top: 1rem; border-top: 1px dashed var(--border-color);">
+              <label style="font-size: 0.85rem; font-weight: 600; margin-bottom: 0.4rem; display: block;">
+                <i class="fa-solid fa-upload"></i> Pulihkan Data dari File Backup JSON:
+              </label>
+              <div style="display: flex; gap: 0.5rem; align-items: center;">
+                <input type="file" id="importJsonInput" accept="application/json" class="form-control" style="font-size: 0.8rem; padding: 0.4rem;" onchange="handleImportJson(event)">
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </div>

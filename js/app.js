@@ -7,6 +7,7 @@ import {
   getStoredPublications, saveStoredPublications,
   getStoredBlogs, saveStoredBlogs,
   defaultExperiences, defaultEducation, defaultAwards, defaultSkills,
+  generateDataJsFileContent,
   resetAllDataToDefault
 } from './data.js';
 
@@ -843,6 +844,83 @@ window.deleteBlogItem = function(id) {
     renderBlogs();
     showToast("Artikel blog dihapus.");
   }
+};
+
+// --- CMS Data Export & Permanent Code Sync ---
+window.downloadDataJsFile = function() {
+  const content = generateDataJsFileContent(state.profile, state.publications, state.blogs);
+  const blob = new Blob([content], { type: 'text/javascript' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'data.js';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+  showToast("File data.js berhasil di-download! Ganti file js/data.js di project Anda.");
+};
+
+window.copyDataJsToClipboard = function() {
+  const content = generateDataJsFileContent(state.profile, state.publications, state.blogs);
+  navigator.clipboard.writeText(content).then(() => {
+    showToast("Kode data.js disalin ke clipboard! Siap di-paste ke js/data.js.");
+  }).catch(() => {
+    showToast("Gagal menyalin, silakan gunakan tombol Download.", "error");
+  });
+};
+
+window.downloadBackupJson = function() {
+  const backup = {
+    exportDate: new Date().toISOString(),
+    profile: state.profile,
+    publications: state.publications,
+    blogs: state.blogs
+  };
+  const blob = new Blob([JSON.stringify(backup, null, 2)], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `adeayu_portfolio_backup_${new Date().toISOString().slice(0, 10)}.json`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+  showToast("Backup JSON berhasil di-download!");
+};
+
+window.handleImportJson = function(e) {
+  const file = e.target.files && e.target.files[0];
+  if (!file) return;
+
+  const reader = new FileReader();
+  reader.onload = function(evt) {
+    try {
+      const data = JSON.parse(evt.target.result);
+      if (data.profile) {
+        state.profile = data.profile;
+        saveStoredProfile(data.profile);
+      }
+      if (data.publications && Array.isArray(data.publications)) {
+        state.publications = data.publications;
+        saveStoredPublications(data.publications);
+      }
+      if (data.blogs && Array.isArray(data.blogs)) {
+        state.blogs = data.blogs;
+        saveStoredBlogs(data.blogs);
+      }
+
+      renderAll();
+      renderCMSPubList();
+      renderCMSBlogList();
+      loadProfileToForm();
+      showToast("Data backup berhasil dipulihkan secara penuh!");
+    } catch (err) {
+      console.error(err);
+      showToast("Format file JSON tidak valid!", "error");
+    }
+  };
+  reader.readAsText(file);
 };
 
 // Mobile Drawer Navigation Toggle

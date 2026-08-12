@@ -63,6 +63,7 @@ const i18n = {
     wrf_metric_aqi: "Indeks AQI",
     wrf_metric_accuracy: "Akurasi Reaksi",
     wrf_note_title: "Catatan Temuan Riset (Ade Ayu et al., 2025):",
+    wrf_touch_hint: "Klik / Sentuh Peta untuk Pindahkan Titik Emisi",
     focus_1_title: "Carbon Capture & Biochar",
     focus_1_desc: "Sintesis biochar dari limbah organik dan sludge limbah domestik melalui proses pirolisis untuk kapasitas sekuestrasi CO2 maksimal.",
     focus_2_title: "Pemodelan Kualitas Udara & Cuaca",
@@ -133,6 +134,7 @@ const i18n = {
     wrf_metric_aqi: "AQI Index",
     wrf_metric_accuracy: "Mechanism Accuracy",
     wrf_note_title: "Research Finding Note (Ade Ayu et al., 2025):",
+    wrf_touch_hint: "Click / Tap Map to Relocate Emission Origin",
     about_focus_title: "Core Research Pillars",
     focus_1_title: "Carbon Capture & Biochar",
     focus_1_desc: "Biochar synthesis from organic waste and domestic sludge via pyrolysis to maximize CO2 adsorption capacity.",
@@ -887,13 +889,52 @@ function showToast(msg, type = "success") {
 // ==================== WRF-CHEM INTERACTIVE SIMULATOR ENGINE ====================
 let wrfAnimFrame = null;
 let wrfParticles = [];
+let customSourcePoint = null;
 
 function initWrfSimulator() {
+  const canvas = document.getElementById('wrfCanvas');
+  if (canvas) {
+    canvas.addEventListener('click', handleMapTouch);
+    canvas.addEventListener('touchstart', (e) => {
+      e.preventDefault();
+      handleMapTouch(e);
+    }, { passive: false });
+  }
   updateWrfSim();
   runWrfSimulationAnimation();
 }
 
+function handleMapTouch(e) {
+  const canvas = document.getElementById('wrfCanvas');
+  if (!canvas) return;
+  const rect = canvas.getBoundingClientRect();
+  let clientX = e.clientX;
+  let clientY = e.clientY;
+  if (e.touches && e.touches.length > 0) {
+    clientX = e.touches[0].clientX;
+    clientY = e.touches[0].clientY;
+  }
+
+  const scaleX = canvas.width / rect.width;
+  const scaleY = canvas.height / rect.height;
+  const x = Math.round((clientX - rect.left) * scaleX);
+  const y = Math.round((clientY - rect.top) * scaleY);
+
+  customSourcePoint = { x, y };
+
+  // Reset particles from new custom point
+  wrfParticles = [];
+  for (let i = 0; i < 85; i++) {
+    wrfParticles.push(createWrfParticle(canvas, x, y));
+  }
+
+  const isEn = state.lang === 'en';
+  showToast(isEn ? `Emission origin moved to map point (${x}, ${y})!` : `Titik emisi dipindahkan ke lokasi (${x}, ${y})!`);
+}
+
 window.updateWrfSim = function() {
+  // Reset custom point on scenario change
+  customSourcePoint = null;
   const scenario = document.getElementById('wrfScenario')?.value || 'karhutla';
   const mechanism = document.getElementById('wrfMechanism')?.value || 'GEOS-Chem';
   const windSpeed = parseFloat(document.getElementById('wrfWind')?.value || 8.5);
@@ -1001,6 +1042,13 @@ window.runWrfSimulationAnimation = function() {
       sourceX = 212;
       sourceY = 205;
       sourceName = 'Jakarta Monas Hub (106.8°E, 6.2°S)';
+    }
+
+    // Override if custom interactive point clicked/tapped by user
+    if (customSourcePoint) {
+      sourceX = customSourcePoint.x;
+      sourceY = customSourcePoint.y;
+      sourceName = `Interactive Origin (${sourceX}, ${sourceY})`;
     }
 
     // Heat Gradient Rings at Source

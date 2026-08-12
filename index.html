@@ -317,9 +317,12 @@
             </div>
 
             <!-- Canvas Visualization -->
-            <div style="position: relative; width: 100%; height: 320px; border-radius: var(--radius-md); overflow: hidden; background: #06110d; border: 1px solid var(--border-color);">
+            <div style="position: relative; width: 100%; height: 320px; border-radius: var(--radius-md); overflow: hidden; background: #06110d; border: 1px solid var(--border-color); cursor: crosshair;">
               <canvas id="wrfCanvas" width="700" height="320" style="width: 100%; height: 100%; display: block;"></canvas>
-              <div style="position: absolute; bottom: 12px; left: 12px; background: rgba(0,0,0,0.65); backdrop-filter: blur(6px); padding: 6px 12px; border-radius: var(--radius-sm); font-size: 0.75rem; color: #a7f3d0; border: 1px solid rgba(16,185,129,0.3);">
+              <div style="position: absolute; top: 12px; left: 50%; transform: translateX(-50%); background: rgba(6,17,13,0.85); backdrop-filter: blur(8px); padding: 5px 14px; border-radius: var(--radius-full); font-size: 0.775rem; color: #a7f3d0; border: 1px solid rgba(16,185,129,0.4); pointer-events: none; white-space: nowrap; box-shadow: 0 4px 12px rgba(0,0,0,0.4);">
+                <i class="fa-solid fa-hand-pointer" style="color: var(--primary);"></i> <span data-i18n="wrf_touch_hint">Klik / Sentuh Peta untuk Pindahkan Titik Emisi</span>
+              </div>
+              <div style="position: absolute; bottom: 12px; left: 12px; background: rgba(0,0,0,0.65); backdrop-filter: blur(6px); padding: 6px 12px; border-radius: var(--radius-sm); font-size: 0.75rem; color: #a7f3d0; border: 1px solid rgba(16,185,129,0.3); pointer-events: none;">
                 <i class="fa-solid fa-compass"></i> Domain Grid: WRF-ARW 3km Resolution
               </div>
             </div>

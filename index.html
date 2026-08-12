@@ -257,7 +257,7 @@
         <div class="section-title">
           <span class="badge-pill rose" data-i18n="wrf_subtitle"><i class="fa-solid fa-flask"></i> Simulasi Interaktif WRF-Chem</span>
           <h2 data-i18n="wrf_title">WRF-Chem Air Quality & Dispersion Simulator</h2>
-          <p data-i18n="wrf_desc">Visualisasi numerik sebaran asap karhutla dan pencemar udara berbasis peta satelit geografis (JTL 2025).</p>
+          <p data-i18n="wrf_desc">Pemodelan spasial zonasi konsentrasi mutu udara & sebaran polutan berbasis peta GIS satelit (JTL 2025).</p>
         </div>
 
         <div class="wrf-sim-grid">
@@ -311,7 +311,7 @@
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
               <div style="display: flex; align-items: center; gap: 0.6rem;">
                 <div class="dot-online" id="wrfDotOnline" style="background: var(--accent-warning); box-shadow: none; animation: none;"></div>
-                <h4 id="wrfSimStatusTitle" style="font-size: 1.1rem;">WRF-Chem Real-time Plume Dispersion Canvas</h4>
+                <h4 id="wrfSimStatusTitle" style="font-size: 1.1rem;">Peta Zonasi Konsentrasi Wilayah (WRF-Chem)</h4>
               </div>
               <div style="display: flex; gap: 0.5rem; align-items: center;">
                 <span class="badge-pill" id="wrfStatusIndicator" style="background: rgba(245,158,11,0.15); color: #f59e0b; border-color: rgba(245,158,11,0.3);"><i class="fa-solid fa-circle-pause"></i> Siap (Sentuh / Klik Peta)</span>
@@ -322,10 +322,20 @@
             <!-- Canvas Visualization -->
             <div style="position: relative; width: 100%; height: 320px; border-radius: var(--radius-md); overflow: hidden; background: #06110d; border: 1px solid var(--border-color); cursor: crosshair;">
               <canvas id="wrfCanvas" width="700" height="320" style="width: 100%; height: 100%; display: block;"></canvas>
-              <div style="position: absolute; top: 12px; left: 50%; transform: translateX(-50%); background: rgba(6,17,13,0.85); backdrop-filter: blur(8px); padding: 5px 14px; border-radius: var(--radius-full); font-size: 0.775rem; color: #a7f3d0; border: 1px solid rgba(16,185,129,0.4); pointer-events: none; white-space: nowrap; box-shadow: 0 4px 12px rgba(0,0,0,0.4);">
-                <i class="fa-solid fa-hand-pointer" style="color: var(--primary);"></i> <span data-i18n="wrf_touch_hint">Klik / Sentuh Peta untuk Pindahkan Titik Emisi</span>
+              <div style="position: absolute; top: 12px; left: 50%; transform: translateX(-50%); background: rgba(6,17,13,0.88); backdrop-filter: blur(8px); padding: 5px 14px; border-radius: var(--radius-full); font-size: 0.775rem; color: #a7f3d0; border: 1px solid rgba(16,185,129,0.4); pointer-events: none; white-space: nowrap; box-shadow: 0 4px 12px rgba(0,0,0,0.4);">
+                <i class="fa-solid fa-hand-pointer" style="color: var(--primary);"></i> <span data-i18n="wrf_touch_hint">Klik / Sentuh Wilayah Peta untuk Analisis Konsentrasi</span>
               </div>
-              <div style="position: absolute; bottom: 12px; left: 12px; background: rgba(0,0,0,0.65); backdrop-filter: blur(6px); padding: 6px 12px; border-radius: var(--radius-sm); font-size: 0.75rem; color: #a7f3d0; border: 1px solid rgba(16,185,129,0.3); pointer-events: none;">
+              <!-- Color Concentration Scale Bar -->
+              <div style="position: absolute; bottom: 12px; right: 12px; background: rgba(6,17,13,0.85); backdrop-filter: blur(8px); padding: 6px 12px; border-radius: var(--radius-sm); font-size: 0.7rem; color: #e2e8f0; border: 1px solid rgba(16,185,129,0.3); pointer-events: none; display: flex; align-items: center; gap: 8px;">
+                <span style="font-weight: 600; color: #a7f3d0;">Konsentrasi:</span>
+                <div style="display: flex; gap: 4px; align-items: center;">
+                  <span style="display: inline-block; width: 12px; height: 10px; border-radius: 2px; background: #10b981;"></span> <span style="font-size: 0.65rem;">&lt;50</span>
+                  <span style="display: inline-block; width: 12px; height: 10px; border-radius: 2px; background: #eab308;"></span> <span style="font-size: 0.65rem;">50-100</span>
+                  <span style="display: inline-block; width: 12px; height: 10px; border-radius: 2px; background: #f97316;"></span> <span style="font-size: 0.65rem;">100-150</span>
+                  <span style="display: inline-block; width: 12px; height: 10px; border-radius: 2px; background: #f43f5e;"></span> <span style="font-size: 0.65rem;">&gt;150 µg/m³</span>
+                </div>
+              </div>
+              <div style="position: absolute; bottom: 12px; left: 12px; background: rgba(0,0,0,0.7); backdrop-filter: blur(6px); padding: 6px 12px; border-radius: var(--radius-sm); font-size: 0.75rem; color: #a7f3d0; border: 1px solid rgba(16,185,129,0.3); pointer-events: none;">
                 <i class="fa-solid fa-compass"></i> Domain Grid: WRF-ARW 3km Resolution
               </div>
             </div>

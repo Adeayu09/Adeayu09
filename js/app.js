@@ -44,7 +44,7 @@ const i18n = {
     about_focus_title: "Pilar Riset Utama",
     wrf_subtitle: "Simulasi Interaktif WRF-Chem",
     wrf_title: "WRF-Chem Air Quality & Dispersion Simulator",
-    wrf_desc: "Visualisasi numerik sebaran asap karhutla dan pencemar udara berbasis peta satelit geografis (JTL 2025).",
+    wrf_desc: "Pemodelan spasial zonasi konsentrasi mutu udara & sebaran polutan berbasis peta GIS satelit (JTL 2025).",
     wrf_ctrl_heading: "Parameter Simulasi",
     wrf_scenario_label: "Skenario Simulasi",
     wrf_scen_1: "Asap Karhutla (Riau & Sumatera)",
@@ -57,13 +57,13 @@ const i18n = {
     dir_e: "Timur (East)",
     dir_se: "Tenggara (Southeast)",
     dir_nw: "Barat Laut (Northwest)",
-    wrf_btn_run: "Jalankan Simulasi",
+    wrf_btn_run: "Tampilkan Pola Zonasi",
     wrf_metric_peak: "Konsentrasi Puncak",
     wrf_metric_radius: "Radius Sebaran",
     wrf_metric_aqi: "Indeks AQI",
     wrf_metric_accuracy: "Akurasi Reaksi",
     wrf_note_title: "Catatan Temuan Riset (Ade Ayu et al., 2025):",
-    wrf_touch_hint: "Klik / Sentuh Peta untuk Pindahkan Titik Emisi",
+    wrf_touch_hint: "Klik / Sentuh Wilayah Peta untuk Analisis Konsentrasi",
     focus_1_title: "Carbon Capture & Biochar",
     focus_1_desc: "Sintesis biochar dari limbah organik dan sludge limbah domestik melalui proses pirolisis untuk kapasitas sekuestrasi CO2 maksimal.",
     focus_2_title: "Pemodelan Kualitas Udara & Cuaca",
@@ -115,7 +115,7 @@ const i18n = {
     about_desc: "Combining nature-based solutions for carbon sequestration with high-precision numerical simulations for air quality protection.",
     wrf_subtitle: "Interactive WRF-Chem Simulation",
     wrf_title: "WRF-Chem Air Quality & Dispersion Simulator",
-    wrf_desc: "Numerical visualization of wildfire smoke plumes and air pollutants based on GIS satellite maps (JTL 2025).",
+    wrf_desc: "Spatial regional concentration zoning & pollutant dispersion modeling based on GIS satellite maps (JTL 2025).",
     wrf_ctrl_heading: "Simulation Parameters",
     wrf_scenario_label: "Simulation Scenario",
     wrf_scen_1: "Wildfire Smoke (Riau & Sumatera)",
@@ -128,13 +128,13 @@ const i18n = {
     dir_e: "East",
     dir_se: "Southeast",
     dir_nw: "Northwest",
-    wrf_btn_run: "Run Simulation",
+    wrf_btn_run: "Show Heatmap Zones",
     wrf_metric_peak: "Peak Concentration",
     wrf_metric_radius: "Dispersion Radius",
     wrf_metric_aqi: "AQI Index",
     wrf_metric_accuracy: "Mechanism Accuracy",
     wrf_note_title: "Research Finding Note (Ade Ayu et al., 2025):",
-    wrf_touch_hint: "Click / Tap Map to Relocate Emission Origin",
+    wrf_touch_hint: "Click / Tap Map Region for Concentration Analysis",
     about_focus_title: "Core Research Pillars",
     focus_1_title: "Carbon Capture & Biochar",
     focus_1_desc: "Biochar synthesis from organic waste and domestic sludge via pyrolysis to maximize CO2 adsorption capacity.",
@@ -887,10 +887,11 @@ function showToast(msg, type = "success") {
 }
 
 // ==================== WRF-CHEM INTERACTIVE SIMULATOR ENGINE ====================
+// ==================== WRF-CHEM SPATIAL CONCENTRATION ZONING ENGINE ====================
 let wrfAnimFrame = null;
-let wrfParticles = [];
 let customSourcePoint = null;
 let isWrfSimRunning = false;
+let plumePulseOffset = 0;
 
 function initWrfSimulator() {
   const canvas = document.getElementById('wrfCanvas');
@@ -925,19 +926,15 @@ function handleMapTouch(e) {
   // Recalculate variables dynamically for new coordinates
   recalculateMetricsForPoint(x, y);
 
-  // If simulation is not running yet, auto-start when user taps map
-  if (!isWrfSimRunning) {
-    startWrfSimAnimation();
+  if (isWrfSimRunning) {
+    // Redraw with pulse
+    plumePulseOffset = 0;
   } else {
-    // Reset particles from new custom point
-    wrfParticles = [];
-    for (let i = 0; i < 85; i++) {
-      wrfParticles.push(createWrfParticle(canvas, x, y));
-    }
+    drawConcentrationZoningMap(x, y, false);
   }
 
   const isEn = state.lang === 'en';
-  showToast(isEn ? `Origin set to (${x}, ${y}) — Metrics updated!` : `Titik emisi (${x}, ${y}) set — Nilai variabel diperbarui!`);
+  showToast(isEn ? `Region selected at (${x}, ${y}) — Concentration zoning updated!` : `Wilayah (${x}, ${y}) dipilih — Zonasi konsentrasi polutan diperbarui!`);
 }
 
 window.updateWrfSim = function() {
@@ -968,9 +965,9 @@ window.updateWrfSim = function() {
 
   recalculateMetricsForPoint(ptX, ptY);
 
-  // If simulation is stopped, render static frame
+  // Render static concentration zoning if not animating
   if (!isWrfSimRunning) {
-    drawStaticWrfFrame(ptX, ptY);
+    drawConcentrationZoningMap(ptX, ptY, false);
   }
 };
 
@@ -998,13 +995,13 @@ function recalculateMetricsForPoint(x, y) {
   let aqiColor = '';
 
   if (aqiScore > 150) {
-    aqiText = isEn ? `${aqiScore} (Unhealthy)` : `${aqiScore} (Sangat Tidak Sehat)`;
+    aqiText = isEn ? `${aqiScore} (Unhealthy / >150 µg/m³)` : `${aqiScore} (Sangat Tidak Sehat / >150 µg/m³)`;
     aqiColor = 'var(--accent-rose)';
   } else if (aqiScore > 110) {
     aqiText = isEn ? `${aqiScore} (Moderate - Sensitive)` : `${aqiScore} (Tidak Sehat Kelompok Sensitif)`;
     aqiColor = 'var(--accent-warning)';
   } else {
-    aqiText = isEn ? `${aqiScore} (Moderate)` : `${aqiScore} (Sedang / Baik)`;
+    aqiText = isEn ? `${aqiScore} (Moderate / 50-100 µg/m³)` : `${aqiScore} (Sedang / 50-100 µg/m³)`;
     aqiColor = 'var(--primary)';
   }
 
@@ -1017,12 +1014,12 @@ function recalculateMetricsForPoint(x, y) {
   let noteText = '';
   if (customSourcePoint) {
     noteText = isEn ?
-      `Custom point (${x}, ${y}): WRF model recalculated plume concentration (${peak} µg/m³) and ${radius} km dispersion radius.` :
-      `Titik kustom (${x}, ${y}): Model WRF menghitung ulang konsentrasi pluma (${peak} µg/m³) & radius sebaran ${radius} km.`;
+      `Region (${x}, ${y}): WRF-Chem numerical model generated spatial concentration gradient (${peak} µg/m³ peak) with ${radius} km dispersion buffer.` :
+      `Wilayah (${x}, ${y}): Model numerik WRF-Chem menghasilkan zonasi sebaran konsentrasi spasial (${peak} µg/m³ puncak) & radius buffer ${radius} km.`;
   } else {
     noteText = isEn ?
-      `GEOS-Chem mechanism provided highest accuracy for wildfire aerosol plume transport in Sumatera compared to SAPRC99 and MOZART.` :
-      `Mekanisme GEOS-Chem memberikan akurasi tertinggi untuk estimasi sebaran aerosol kabut asap karhutla di Sumatera dibandingkan SAPRC99 dan MOZART.`;
+      `GEOS-Chem mechanism provided highest spatial accuracy for atmospheric aerosol zoning in Sumatera compared to SAPRC99 and MOZART.` :
+      `Mekanisme GEOS-Chem memberikan akurasi spasial tertinggi untuk zonasi aerosol atmosferik di Sumatera dibandingkan SAPRC99 dan MOZART.`;
   }
 
   document.getElementById('wrfMetricPeak').textContent = `${peak} µg/m³`;
@@ -1052,11 +1049,11 @@ function startWrfSimAnimation() {
   const statusBadge = document.getElementById('wrfStatusIndicator');
   const dotOnline = document.getElementById('wrfDotOnline');
 
-  if (btnText) btnText.textContent = state.lang === 'en' ? 'Pause Simulation' : 'Hentikan Simulasi';
+  if (btnText) btnText.textContent = state.lang === 'en' ? 'Hide Dynamic Heatmap' : 'Hentikan Animasi Zonasi';
   if (btnIcon) btnIcon.className = 'fa-solid fa-pause';
 
   if (statusBadge) {
-    statusBadge.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> ${state.lang === 'en' ? 'Running Plume' : 'Simulasi Berjalan'}`;
+    statusBadge.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> ${state.lang === 'en' ? 'Simulating Dispersion' : 'Zonasi Aktif'}`;
     statusBadge.style.background = 'rgba(16, 185, 129, 0.15)';
     statusBadge.style.color = 'var(--primary)';
     statusBadge.style.borderColor = 'rgba(16, 185, 129, 0.3)';
@@ -1080,11 +1077,11 @@ function stopWrfSimAnimation() {
   const statusBadge = document.getElementById('wrfStatusIndicator');
   const dotOnline = document.getElementById('wrfDotOnline');
 
-  if (btnText) btnText.textContent = state.lang === 'en' ? 'Run Simulation' : 'Jalankan Simulasi';
+  if (btnText) btnText.textContent = state.lang === 'en' ? 'Show Heatmap Zones' : 'Tampilkan Pola Zonasi';
   if (btnIcon) btnIcon.className = 'fa-solid fa-play';
 
   if (statusBadge) {
-    statusBadge.innerHTML = `<i class="fa-solid fa-circle-pause"></i> ${state.lang === 'en' ? 'Paused (Map Ready)' : 'Siap (Sentuh / Klik Peta)'}`;
+    statusBadge.innerHTML = `<i class="fa-solid fa-circle-pause"></i> ${state.lang === 'en' ? 'Ready (Tap Map)' : 'Siap (Sentuh / Klik Peta)'}`;
     statusBadge.style.background = 'rgba(245, 158, 11, 0.15)';
     statusBadge.style.color = '#f59e0b';
     statusBadge.style.borderColor = 'rgba(245, 158, 11, 0.3)';
@@ -1094,165 +1091,175 @@ function stopWrfSimAnimation() {
     dotOnline.style.boxShadow = 'none';
     dotOnline.style.animation = 'none';
   }
+
+  // Draw static baseline zoning map
+  const scenario = document.getElementById('wrfScenario')?.value || 'karhutla';
+  let ptX = scenario === 'jakarta' ? 212 : 185;
+  let ptY = scenario === 'jakarta' ? 205 : 185;
+  if (customSourcePoint) {
+    ptX = customSourcePoint.x;
+    ptY = customSourcePoint.y;
+  }
+  drawConcentrationZoningMap(ptX, ptY, false);
 }
 
-function drawStaticWrfFrame(x, y) {
+// ==================== SCIENTIFIC HEATMAP & CONTOUR ZONING RENDERER ====================
+function drawConcentrationZoningMap(sourceX, sourceY, isDynamic) {
   const canvas = document.getElementById('wrfCanvas');
   if (!canvas) return;
   const ctx = canvas.getContext('2d');
   const scenario = document.getElementById('wrfScenario')?.value || 'karhutla';
   const windSpeed = parseFloat(document.getElementById('wrfWind')?.value || 8.5);
+  const direction = document.getElementById('wrfDirection')?.value || 'NE';
 
+  // Base map background
   drawWrfGeographicMap(ctx, canvas, scenario);
 
-  // Origin Beacon Rings
-  const grad = ctx.createRadialGradient(x, y, 5, x, y, 90 + windSpeed * 3);
-  grad.addColorStop(0, 'rgba(244, 63, 94, 0.55)');
-  grad.addColorStop(0.4, 'rgba(245, 158, 11, 0.35)');
-  grad.addColorStop(0.7, 'rgba(16, 185, 129, 0.15)');
-  grad.addColorStop(1, 'rgba(6, 17, 13, 0)');
-  ctx.fillStyle = grad;
+  // Wind vectors
+  let dx = 1;
+  let dy = -0.5;
+  if (direction === 'NE') { dx = 1.2; dy = -0.7; }
+  if (direction === 'E') { dx = 1.5; dy = 0.1; }
+  if (direction === 'SE') { dx = 1.2; dy = 0.8; }
+  if (direction === 'NW') { dx = -1.2; dy = -0.7; }
+
+  const angle = Math.atan2(dy, dx);
+  const pulse = isDynamic ? Math.sin(plumePulseOffset * 0.05) * 6 : 0;
+
+  // --- SCIENTIFIC CONCENTRATION ZONING ELLIPSES (HEATMAP CONTOURS) ---
+  const zones = [
+    // Zone 1: Low concentration plume buffer (< 50 µg/m³) - Emerald/Teal
+    { rx: 220 + windSpeed * 7 + pulse, ry: 95 + windSpeed * 2, color: 'rgba(16, 185, 129, 0.22)', stroke: 'rgba(16, 185, 129, 0.5)', label: '<50 µg/m³ (Baik)', distFactor: 0.85 },
+    // Zone 2: Moderate concentration zone (50-100 µg/m³) - Yellow/Amber
+    { rx: 160 + windSpeed * 5 + pulse * 0.8, ry: 65 + windSpeed * 1.5, color: 'rgba(234, 179, 8, 0.32)', stroke: 'rgba(234, 179, 8, 0.7)', label: '50-100 µg/m³ (Sedang)', distFactor: 0.65 },
+    // Zone 3: High concentration zone (100-150 µg/m³) - Orange
+    { rx: 105 + windSpeed * 3 + pulse * 0.6, ry: 45 + windSpeed * 1.0, color: 'rgba(249, 115, 22, 0.45)', stroke: 'rgba(249, 115, 22, 0.85)', label: '100-150 µg/m³ (Tidak Sehat)', distFactor: 0.45 },
+    // Zone 4: Severe Peak Core (> 150 µg/m³) - Crimson Rose
+    { rx: 55 + windSpeed * 1.5 + pulse * 0.4, ry: 28 + windSpeed * 0.5, color: 'rgba(244, 63, 94, 0.65)', stroke: '#f43f5e', label: '>150 µg/m³ (Puncak Kritis)', distFactor: 0.2 }
+  ];
+
+  // Draw Gaussian Concentration Plume using transformed Elliptical Gradients
+  zones.forEach((z) => {
+    const cx = sourceX + (dx * z.rx * z.distFactor);
+    const cy = sourceY + (dy * z.rx * z.distFactor * 0.6);
+
+    ctx.save();
+    ctx.translate(cx, cy);
+    ctx.rotate(angle);
+
+    // Fill concentration zone ellipse
+    ctx.beginPath();
+    ctx.ellipse(0, 0, z.rx, z.ry, 0, 0, Math.PI * 2);
+    ctx.fillStyle = z.color;
+    ctx.fill();
+
+    // Isopleth contour boundary line
+    ctx.strokeStyle = z.stroke;
+    ctx.lineWidth = 1.5;
+    ctx.setLineDash([4, 2]);
+    ctx.stroke();
+    ctx.setLineDash([]);
+
+    ctx.restore();
+  });
+
+  // Draw Concentration Zone Text Badges along the plume centerline
+  const labelDist = 120 + windSpeed * 4;
+  const labelX = sourceX + dx * labelDist;
+  const labelY = sourceY + dy * labelDist * 0.7;
+
+  ctx.fillStyle = 'rgba(6, 17, 13, 0.8)';
+  ctx.strokeStyle = 'rgba(234, 179, 8, 0.6)';
+  ctx.lineWidth = 1;
   ctx.beginPath();
-  ctx.arc(x, y, 90 + windSpeed * 3, 0, Math.PI * 2);
+  ctx.roundRect(labelX - 45, labelY - 12, 90, 22, 4);
+  ctx.fill();
+  ctx.stroke();
+
+  ctx.fillStyle = '#fef08a';
+  ctx.font = 'bold 9.5px sans-serif';
+  ctx.textAlign = 'center';
+  ctx.fillText('Zonasi Dispersi PM', labelX, labelY + 3);
+  ctx.textAlign = 'left';
+
+  // --- SOURCE EMISSION CENTER BEACON ---
+  // Ambient radial glow
+  const coreGrad = ctx.createRadialGradient(sourceX, sourceY, 3, sourceX, sourceY, 40);
+  coreGrad.addColorStop(0, 'rgba(244, 63, 94, 0.85)');
+  coreGrad.addColorStop(0.5, 'rgba(249, 115, 22, 0.45)');
+  coreGrad.addColorStop(1, 'rgba(6, 17, 13, 0)');
+  ctx.fillStyle = coreGrad;
+  ctx.beginPath();
+  ctx.arc(sourceX, sourceY, 40, 0, Math.PI * 2);
   ctx.fill();
 
-  // Pulsing Dot
+  // Core Point
   ctx.fillStyle = '#f43f5e';
   ctx.beginPath();
-  ctx.arc(x, y, 7, 0, Math.PI * 2);
+  ctx.arc(sourceX, sourceY, 6, 0, Math.PI * 2);
   ctx.fill();
   ctx.strokeStyle = '#ffffff';
   ctx.lineWidth = 2.5;
   ctx.stroke();
 
-  // Text Label
+  // Origin Label
+  let sourceName = customSourcePoint ?
+    `Titik Analisis (${sourceX}, ${sourceY})` :
+    (scenario === 'jakarta' ? 'Pusat Emisi Jakarta (Monas)' : 'Pusat Emisi Karhutla (Pekanbaru)');
+
   ctx.fillStyle = '#ffffff';
   ctx.font = 'bold 11px sans-serif';
-  ctx.shadowColor = 'rgba(0,0,0,0.8)';
+  ctx.shadowColor = 'rgba(0,0,0,0.9)';
   ctx.shadowBlur = 4;
-  ctx.fillText(customSourcePoint ? `Interactive Origin (${x}, ${y})` : (scenario === 'jakarta' ? 'Jakarta Monas Hub' : 'Riau Pekanbaru Origin'), x - 45, y - 14);
+  ctx.fillText(sourceName, sourceX - 45, sourceY - 14);
   ctx.shadowBlur = 0;
+
+  // --- WIND VECTOR ARROW OVERLAY ---
+  ctx.strokeStyle = '#10b981';
+  ctx.fillStyle = '#10b981';
+  ctx.lineWidth = 2;
+  const arrowStartX = canvas.width - 80;
+  const arrowStartY = 45;
+  const arrowEndX = arrowStartX + dx * 25;
+  const arrowEndY = arrowStartY + dy * 25;
+
+  ctx.beginPath();
+  ctx.moveTo(arrowStartX, arrowStartY);
+  ctx.lineTo(arrowEndX, arrowEndY);
+  ctx.stroke();
+
+  // Arrow Head
+  ctx.beginPath();
+  ctx.moveTo(arrowEndX, arrowEndY);
+  ctx.lineTo(arrowEndX - 8 * Math.cos(angle - Math.PI / 6), arrowEndY - 8 * Math.sin(angle - Math.PI / 6));
+  ctx.lineTo(arrowEndX - 8 * Math.cos(angle + Math.PI / 6), arrowEndY - 8 * Math.sin(angle + Math.PI / 6));
+  ctx.fill();
+
+  ctx.fillStyle = '#a7f3d0';
+  ctx.font = 'bold 10px sans-serif';
+  ctx.fillText(`Vektor Angin (${direction})`, arrowStartX - 35, arrowStartY - 10);
 }
 
 window.runWrfSimulationAnimation = function() {
   const canvas = document.getElementById('wrfCanvas');
   if (!canvas) return;
-  const ctx = canvas.getContext('2d');
 
   if (wrfAnimFrame) cancelAnimationFrame(wrfAnimFrame);
-
-  // Initialize Particles
-  wrfParticles = [];
-  for (let i = 0; i < 85; i++) {
-    wrfParticles.push(createWrfParticle(canvas));
-  }
 
   function draw() {
     if (!isWrfSimRunning) return;
 
-    const windSpeed = parseFloat(document.getElementById('wrfWind')?.value || 8.5);
-    const direction = document.getElementById('wrfDirection')?.value || 'NE';
+    plumePulseOffset += 1;
 
-    let dx = 1;
-    let dy = -0.5;
-    if (direction === 'NE') { dx = 1.2; dy = -0.7; }
-    if (direction === 'E') { dx = 1.5; dy = 0.1; }
-    if (direction === 'SE') { dx = 1.2; dy = 0.8; }
-    if (direction === 'NW') { dx = -1.2; dy = -0.7; }
-
-    // Draw Map Background according to Scenario
     const scenario = document.getElementById('wrfScenario')?.value || 'karhutla';
-    drawWrfGeographicMap(ctx, canvas, scenario);
-
-    // Source Emission Emitter (Origin Beacon on Map)
-    let sourceX = 185;
-    let sourceY = 185;
-    let sourceName = 'Riau Emission Origin (Pekanbaru 101.4°E, 0.5°N)';
-
-    if (scenario === 'jakarta') {
-      sourceX = 212;
-      sourceY = 205;
-      sourceName = 'Jakarta Monas Hub (106.8°E, 6.2°S)';
-    }
-
-    // Override if custom interactive point clicked/tapped by user
+    let sourceX = scenario === 'jakarta' ? 212 : 185;
+    let sourceY = scenario === 'jakarta' ? 205 : 185;
     if (customSourcePoint) {
       sourceX = customSourcePoint.x;
       sourceY = customSourcePoint.y;
-      sourceName = `Interactive Origin (${sourceX}, ${sourceY})`;
     }
 
-    // Heat Gradient Rings at Source
-    const grad = ctx.createRadialGradient(sourceX, sourceY, 5, sourceX, sourceY, 110 + windSpeed * 4);
-    grad.addColorStop(0, 'rgba(244, 63, 94, 0.55)');
-    grad.addColorStop(0.4, 'rgba(245, 158, 11, 0.35)');
-    grad.addColorStop(0.7, 'rgba(16, 185, 129, 0.15)');
-    grad.addColorStop(1, 'rgba(6, 17, 13, 0)');
-    ctx.fillStyle = grad;
-    ctx.beginPath();
-    ctx.arc(sourceX, sourceY, 110 + windSpeed * 4, 0, Math.PI * 2);
-    ctx.fill();
-
-    // Source Beacon Pulsing Point
-    ctx.fillStyle = '#f43f5e';
-    ctx.beginPath();
-    ctx.arc(sourceX, sourceY, 7, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.strokeStyle = '#ffffff';
-    ctx.lineWidth = 2.5;
-    ctx.stroke();
-
-    // Text Label Source Origin
-    ctx.fillStyle = '#ffffff';
-    ctx.font = 'bold 11px sans-serif';
-    ctx.shadowColor = 'rgba(0,0,0,0.8)';
-    ctx.shadowBlur = 4;
-    ctx.fillText(sourceName, sourceX - 45, sourceY - 14);
-    ctx.shadowBlur = 0;
-
-    // Draw & Update Particles
-    wrfParticles.forEach((p) => {
-      p.x += (dx * windSpeed * 0.45) + p.vx;
-      p.y += (dy * windSpeed * 0.45) + p.vy;
-      p.life += 1;
-      p.radius += 0.18;
-      p.alpha -= 0.005;
-
-      if (p.alpha <= 0 || p.x > canvas.width + 50 || p.y < -50 || p.y > canvas.height + 50) {
-        Object.assign(p, createWrfParticle(canvas, sourceX, sourceY));
-      }
-
-      ctx.fillStyle = p.color.replace('ALPHA', p.alpha.toFixed(2));
-      ctx.beginPath();
-      ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
-      ctx.fill();
-    });
-
-    // Wind Vector Overlay Arrow
-    ctx.strokeStyle = '#10b981';
-    ctx.fillStyle = '#10b981';
-    ctx.lineWidth = 2;
-    const arrowStartX = canvas.width - 80;
-    const arrowStartY = 45;
-    const arrowEndX = arrowStartX + dx * 25;
-    const arrowEndY = arrowStartY + dy * 25;
-
-    ctx.beginPath();
-    ctx.moveTo(arrowStartX, arrowStartY);
-    ctx.lineTo(arrowEndX, arrowEndY);
-    ctx.stroke();
-
-    // Arrow Head
-    const angle = Math.atan2(dy * 25, dx * 25);
-    ctx.beginPath();
-    ctx.moveTo(arrowEndX, arrowEndY);
-    ctx.lineTo(arrowEndX - 8 * Math.cos(angle - Math.PI / 6), arrowEndY - 8 * Math.sin(angle - Math.PI / 6));
-    ctx.lineTo(arrowEndX - 8 * Math.cos(angle + Math.PI / 6), arrowEndY - 8 * Math.sin(angle + Math.PI / 6));
-    ctx.fill();
-
-    ctx.fillStyle = '#a7f3d0';
-    ctx.font = 'bold 10px sans-serif';
-    ctx.fillText(`Wind Vector (${direction})`, arrowStartX - 35, arrowStartY - 10);
+    drawConcentrationZoningMap(sourceX, sourceY, true);
 
     wrfAnimFrame = requestAnimationFrame(draw);
   }
@@ -1304,38 +1311,5 @@ function drawWrfGeographicMap(ctx, canvas, scenario) {
     ctx.stroke();
   }
   ctx.setLineDash([]);
-}
-
-function drawMapCity(ctx, x, y, name) {
-  ctx.fillStyle = '#2dd4bf';
-  ctx.beginPath();
-  ctx.arc(x, y, 4, 0, Math.PI * 2);
-  ctx.fill();
-
-  ctx.fillStyle = '#e2e8f0';
-  ctx.font = '10px sans-serif';
-  ctx.fillText(name, x + 8, y + 3);
-}
-
-function createWrfParticle(canvas, customX, customY) {
-  const sourceX = customX || 140;
-  const sourceY = customY || (canvas.height / 2 + 10);
-  const colors = [
-    'rgba(244, 63, 94, ALPHA)',  // High concentration rose
-    'rgba(245, 158, 11, ALPHA)', // Medium amber
-    'rgba(16, 185, 129, ALPHA)', // Low mint
-    'rgba(6, 182, 212, ALPHA)'   // Cyan aerosol
-  ];
-
-  return {
-    x: sourceX + (Math.random() - 0.5) * 15,
-    y: sourceY + (Math.random() - 0.5) * 15,
-    vx: (Math.random() - 0.5) * 0.6,
-    vy: (Math.random() - 0.5) * 0.6,
-    radius: Math.random() * 4 + 3,
-    alpha: Math.random() * 0.5 + 0.4,
-    life: 0,
-    color: colors[Math.floor(Math.random() * colors.length)]
-  };
 }
 

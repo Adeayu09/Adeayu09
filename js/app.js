@@ -988,35 +988,30 @@ window.runWrfSimulationAnimation = function() {
     if (direction === 'SE') { dx = 1.2; dy = 0.8; }
     if (direction === 'NW') { dx = -1.2; dy = -0.7; }
 
-    // Clear with dark atmospheric theme
-    ctx.fillStyle = '#06110d';
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    // Draw Map Background according to Scenario
+    const scenario = document.getElementById('wrfScenario')?.value || 'karhutla';
+    drawWrfGeographicMap(ctx, canvas, scenario);
 
-    // Draw Grid overlay
-    ctx.strokeStyle = 'rgba(16, 185, 129, 0.08)';
-    ctx.lineWidth = 1;
-    for (let x = 0; x < canvas.width; x += 40) {
-      ctx.beginPath();
-      ctx.moveTo(x, 0);
-      ctx.lineTo(x, canvas.height);
-      ctx.stroke();
-    }
-    for (let y = 0; y < canvas.height; y += 40) {
-      ctx.beginPath();
-      ctx.moveTo(0, y);
-      ctx.lineTo(canvas.width, y);
-      ctx.stroke();
-    }
+    // Source Emission Emitter (Origin Beacon on Map)
+    let sourceX = 140;
+    let sourceY = canvas.height / 2 + 10;
+    let sourceName = 'Pekanbaru / Riau Origin (101.4°E, 0.5°N)';
 
-    // Source Emission Emitter (Origin Beacon)
-    const sourceX = 100;
-    const sourceY = canvas.height / 2 + 20;
+    if (scenario === 'jakarta') {
+      sourceX = 180;
+      sourceY = canvas.height / 2 + 30;
+      sourceName = 'Jakarta Industrial / Monas Hub (106.8°E, 6.2°S)';
+    } else if (scenario === 'biochar') {
+      sourceX = 220;
+      sourceY = 120;
+      sourceName = 'NTU Biochar Lab, Taipei (121.5°E, 25.0°N)';
+    }
 
     // Heat Gradient Rings at Source
     const grad = ctx.createRadialGradient(sourceX, sourceY, 5, sourceX, sourceY, 120 + windSpeed * 4);
-    grad.addColorStop(0, 'rgba(244, 63, 94, 0.45)');
-    grad.addColorStop(0.4, 'rgba(245, 158, 11, 0.25)');
-    grad.addColorStop(0.7, 'rgba(16, 185, 129, 0.12)');
+    grad.addColorStop(0, 'rgba(244, 63, 94, 0.5)');
+    grad.addColorStop(0.4, 'rgba(245, 158, 11, 0.3)');
+    grad.addColorStop(0.7, 'rgba(16, 185, 129, 0.15)');
     grad.addColorStop(1, 'rgba(6, 17, 13, 0)');
     ctx.fillStyle = grad;
     ctx.beginPath();
@@ -1026,16 +1021,16 @@ window.runWrfSimulationAnimation = function() {
     // Source Beacon Pulsing Point
     ctx.fillStyle = '#f43f5e';
     ctx.beginPath();
-    ctx.arc(sourceX, sourceY, 6, 0, Math.PI * 2);
+    ctx.arc(sourceX, sourceY, 7, 0, Math.PI * 2);
     ctx.fill();
     ctx.strokeStyle = '#ffffff';
     ctx.lineWidth = 2;
     ctx.stroke();
 
     // Text Label Source
-    ctx.fillStyle = '#f8faf9';
-    ctx.font = '11px sans-serif';
-    ctx.fillText('Source (Emission Origin)', sourceX - 50, sourceY + 22);
+    ctx.fillStyle = '#ffffff';
+    ctx.font = 'bold 11px sans-serif';
+    ctx.fillText(sourceName, sourceX - 40, sourceY - 14);
 
     // Draw & Update Particles
     wrfParticles.forEach((p) => {
@@ -1046,7 +1041,7 @@ window.runWrfSimulationAnimation = function() {
       p.alpha -= 0.005;
 
       if (p.alpha <= 0 || p.x > canvas.width + 50 || p.y < -50 || p.y > canvas.height + 50) {
-        Object.assign(p, createWrfParticle(canvas));
+        Object.assign(p, createWrfParticle(canvas, sourceX, sourceY));
       }
 
       ctx.fillStyle = p.color.replace('ALPHA', p.alpha.toFixed(2));
@@ -1059,7 +1054,7 @@ window.runWrfSimulationAnimation = function() {
     ctx.strokeStyle = '#10b981';
     ctx.fillStyle = '#10b981';
     ctx.lineWidth = 2;
-    const arrowStartX = canvas.width - 70;
+    const arrowStartX = canvas.width - 80;
     const arrowStartY = 45;
     const arrowEndX = arrowStartX + dx * 25;
     const arrowEndY = arrowStartY + dy * 25;
@@ -1078,8 +1073,8 @@ window.runWrfSimulationAnimation = function() {
     ctx.fill();
 
     ctx.fillStyle = '#a7f3d0';
-    ctx.font = '10px sans-serif';
-    ctx.fillText(`Wind Vector (${direction})`, arrowStartX - 30, arrowStartY - 10);
+    ctx.font = 'bold 10px sans-serif';
+    ctx.fillText(`Wind Vector (${direction})`, arrowStartX - 35, arrowStartY - 10);
 
     wrfAnimFrame = requestAnimationFrame(draw);
   }
@@ -1087,9 +1082,169 @@ window.runWrfSimulationAnimation = function() {
   draw();
 };
 
-function createWrfParticle(canvas) {
-  const sourceX = 100;
-  const sourceY = canvas.height / 2 + 20;
+// Geographic Map Renderer Function
+function drawWrfGeographicMap(ctx, canvas, scenario) {
+  const w = canvas.width;
+  const h = canvas.height;
+
+  // Ocean Base Color
+  ctx.fillStyle = '#081714';
+  ctx.fillRect(0, 0, w, h);
+
+  // Lat/Long Coordinate Grid lines
+  ctx.strokeStyle = 'rgba(16, 185, 129, 0.12)';
+  ctx.lineWidth = 1;
+  ctx.setLineDash([4, 4]);
+
+  for (let x = 60; x < w; x += 100) {
+    ctx.beginPath();
+    ctx.moveTo(x, 0);
+    ctx.lineTo(x, h);
+    ctx.stroke();
+  }
+  for (let y = 40; y < h; y += 80) {
+    ctx.beginPath();
+    ctx.moveTo(0, y);
+    ctx.lineTo(w, y);
+    ctx.stroke();
+  }
+  ctx.setLineDash([]); // Reset line dash
+
+  // Draw Landmasses & Coastlines based on scenario
+  ctx.fillStyle = '#112b23'; // Land color
+  ctx.strokeStyle = '#2dd4bf'; // Coastline stroke
+  ctx.lineWidth = 1.5;
+
+  if (scenario === 'karhutla') {
+    // --- MAP 1: SUMATRA & RIAU PROVINCE ---
+    // Sumatra Island Contour
+    ctx.beginPath();
+    ctx.moveTo(0, 40);
+    ctx.lineTo(120, 20);
+    ctx.lineTo(280, 100);
+    ctx.lineTo(450, 220);
+    ctx.lineTo(600, 320);
+    ctx.lineTo(0, 320);
+    ctx.closePath();
+    ctx.fill();
+    ctx.stroke();
+
+    // Malacca Peninsula (Malaysia Coastline Top-Right)
+    ctx.beginPath();
+    ctx.moveTo(350, 0);
+    ctx.lineTo(550, 0);
+    ctx.lineTo(700, 120);
+    ctx.lineTo(700, 0);
+    ctx.closePath();
+    ctx.fill();
+    ctx.stroke();
+
+    // Straits Label
+    ctx.fillStyle = '#5eead4';
+    ctx.font = 'italic 11px sans-serif';
+    ctx.fillText('Selat Melaka / Malacca Strait', 330, 80);
+    ctx.fillText('Samudera Hindia (Indian Ocean)', 60, 280);
+
+    // City Dots & Labels
+    drawMapCity(ctx, 140, 170, 'Pekanbaru (Riau)');
+    drawMapCity(ctx, 280, 220, 'Padang');
+    drawMapCity(ctx, 420, 270, 'Palembang');
+    drawMapCity(ctx, 520, 90, 'Singapore / Johor');
+
+    // Coordinate Grid Text
+    ctx.fillStyle = 'rgba(167, 243, 208, 0.6)';
+    ctx.font = '9px monospace';
+    ctx.fillText('100°E', 65, 15);
+    ctx.fillText('102°E', 165, 15);
+    ctx.fillText('104°E', 265, 15);
+    ctx.fillText('106°E', 365, 15);
+    ctx.fillText('02°N', 5, 45);
+    ctx.fillText('00°N', 5, 125);
+    ctx.fillText('02°S', 5, 205);
+
+  } else if (scenario === 'jakarta') {
+    // --- MAP 2: JAKARTA URBAN & JAVA SEA ---
+    // Java Island Coastline (Bottom half is land, top is Java Sea)
+    ctx.beginPath();
+    ctx.moveTo(0, 140);
+    ctx.bezierCurveTo(150, 120, 300, 180, 500, 130);
+    ctx.bezierCurveTo(600, 100, 680, 150, 700, 160);
+    ctx.lineTo(700, 320);
+    ctx.lineTo(0, 320);
+    ctx.closePath();
+    ctx.fill();
+    ctx.stroke();
+
+    // Labels
+    ctx.fillStyle = '#5eead4';
+    ctx.font = 'italic 11px sans-serif';
+    ctx.fillText('Laut Jawa (Java Sea)', w / 2 - 50, 60);
+    ctx.fillText('Pulau Jawa (West Java)', w / 2 - 50, 260);
+
+    // City Dots
+    drawMapCity(ctx, 180, 190, 'Jakarta Pusat (Monas)');
+    drawMapCity(ctx, 240, 160, 'Tanjung Priok');
+    drawMapCity(ctx, 100, 210, 'Tangerang');
+    drawMapCity(ctx, 320, 220, 'Bekasi');
+    drawMapCity(ctx, 200, 280, 'Depok / Bogor');
+
+    // Coordinate Grid Text
+    ctx.fillStyle = 'rgba(167, 243, 208, 0.6)';
+    ctx.font = '9px monospace';
+    ctx.fillText('106.6°E', 65, 15);
+    ctx.fillText('106.8°E', 165, 15);
+    ctx.fillText('107.0°E', 265, 15);
+    ctx.fillText('06.0°S', 5, 45);
+    ctx.fillText('06.2°S', 5, 125);
+
+  } else if (scenario === 'biochar') {
+    // --- MAP 3: TAIWAN ISLAND & NTU CAMPUS ---
+    // Taiwan Island Contour (Center vertical landmass)
+    ctx.beginPath();
+    ctx.moveTo(250, 40);
+    ctx.bezierCurveTo(340, 60, 360, 180, 310, 280);
+    ctx.bezierCurveTo(280, 310, 220, 280, 200, 200);
+    ctx.bezierCurveTo(190, 120, 210, 50, 250, 40);
+    ctx.closePath();
+    ctx.fill();
+    ctx.stroke();
+
+    // Labels
+    ctx.fillStyle = '#5eead4';
+    ctx.font = 'italic 11px sans-serif';
+    ctx.fillText('Taiwan Strait (Selat Taiwan)', 60, 160);
+    ctx.fillText('Pacific Ocean (Samudera Pasifik)', 420, 160);
+
+    // City Dots
+    drawMapCity(ctx, 220, 120, 'Taipei (NTU Campus)');
+    drawMapCity(ctx, 250, 170, 'Taichung');
+    drawMapCity(ctx, 280, 230, 'Kaohsiung');
+
+    // Coordinate Grid Text
+    ctx.fillStyle = 'rgba(167, 243, 208, 0.6)';
+    ctx.font = '9px monospace';
+    ctx.fillText('120°E', 65, 15);
+    ctx.fillText('121.5°E', 220, 15);
+    ctx.fillText('123°E', 365, 15);
+    ctx.fillText('25.0°N', 5, 45);
+    ctx.fillText('23.5°N', 5, 125);
+  }
+}
+
+function drawMapCity(ctx, x, y, name) {
+  ctx.fillStyle = '#2dd4bf';
+  ctx.beginPath();
+  ctx.arc(x, y, 4, 0, Math.PI * 2);
+  ctx.fill();
+
+  ctx.fillStyle = '#e2e8f0';
+  ctx.font = '10px sans-serif';
+  ctx.fillText(name, x + 8, y + 3);
+}
+
+function createWrfParticle(canvas, customX, customY) {
+  const sourceX = customX || 140;
+  const sourceY = customY || (canvas.height / 2 + 10);
   const colors = [
     'rgba(244, 63, 94, ALPHA)',  // High concentration rose
     'rgba(245, 158, 11, ALPHA)', // Medium amber

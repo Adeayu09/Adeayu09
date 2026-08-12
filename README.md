@@ -5,7 +5,7 @@
 [![Ph.D. Candidate](https://img.shields.io/badge/Ph.D._Candidate-ITS_Surabaya-059669?style=for-the-badge&logo=academic-pages&logoColor=white)](https://its.ac.id)
 [![NTU Researcher](https://img.shields.io/badge/Researcher-National_Taiwan_University-0d9488?style=for-the-badge&logo=taiwan&logoColor=white)](https://ntu.edu.tw)
 [![Environmental Engineering](https://img.shields.io/badge/Focus-Carbon_Capture_%26_Biochar-f43f5e?style=for-the-badge&logo=leaf&logoColor=white)](#-research-focus)
-[![Website](https://img.shields.io/badge/Live_Portfolio-adeayu09.github.io-10b981?style=for-the-badge&logo=googlechrome&logoColor=white)](https://adeayu09.github.io)
+[![Website](https://img.shields.io/badge/Live_Portfolio-adeayu09.github.io-10b981?style=for-the-badge&logo=googlechrome&logoColor=white)](https://adeayu09.github.io/Adeayu09/)
 
 </div>
 

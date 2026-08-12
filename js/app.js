@@ -31,8 +31,8 @@ const i18n = {
     nav_research: "Publikasi & Riset",
     nav_blog: "Blogspot",
     nav_contact: "Kontak",
-    btn_login: "Login Admin",
-    btn_admin_panel: "CMS Admin",
+    btn_login: "Login",
+    btn_admin_panel: "CMS",
     hero_cta_pubs: "Lihat Publikasi & Riset",
     hero_cta_wrf: "Uji Simulator WRF-Chem",
     hero_cta_blog: "Baca Artikel Blog",
@@ -44,11 +44,11 @@ const i18n = {
     about_focus_title: "Pilar Riset Utama",
     wrf_subtitle: "Simulasi Interaktif WRF-Chem",
     wrf_title: "WRF-Chem Air Quality & Dispersion Simulator",
-    wrf_desc: "Visualisasi numerik sebaran asap karhutla, pencemar udara, dan adsorpsi karbon berdasarkan hasil publikasi ilmiah Ade Ayu Oktaviana (JTL 2025).",
+    wrf_desc: "Visualisasi numerik sebaran asap karhutla dan pencemar udara berbasis peta satelit geografis (JTL 2025).",
     wrf_ctrl_heading: "Parameter Simulasi",
     wrf_scenario_label: "Skenario Simulasi",
     wrf_scen_1: "Asap Karhutla (Riau & Sumatera)",
-    wrf_scen_2: "Dispersi PM2.5 Perkotaan Jakarta",
+    wrf_scen_2: "Dispersi PM2.5 Perkotaan (Jakarta)",
     wrf_scen_3: "Adsorpsi CO2 & Biochar Sequestration",
     wrf_mech_label: "Mekanisme Kimia Atmosfer",
     wrf_wind_speed: "Kecepatan Angin",
@@ -102,8 +102,8 @@ const i18n = {
     nav_research: "Publications & Research",
     nav_blog: "Blogspot",
     nav_contact: "Contact",
-    btn_login: "Admin Login",
-    btn_admin_panel: "Admin CMS",
+    btn_login: "Login",
+    btn_admin_panel: "CMS",
     hero_cta_pubs: "Explore Research",
     hero_cta_wrf: "Test WRF Simulator",
     hero_cta_blog: "Read Blog Posts",
@@ -114,7 +114,7 @@ const i18n = {
     about_desc: "Combining nature-based solutions for carbon sequestration with high-precision numerical simulations for air quality protection.",
     wrf_subtitle: "Interactive WRF-Chem Simulation",
     wrf_title: "WRF-Chem Air Quality & Dispersion Simulator",
-    wrf_desc: "Numerical visualization of wildfire smoke plumes, air pollutants, and carbon adsorption based on Ade Ayu Oktaviana's research paper (JTL 2025).",
+    wrf_desc: "Numerical visualization of wildfire smoke plumes and air pollutants based on GIS satellite maps (JTL 2025).",
     wrf_ctrl_heading: "Simulation Parameters",
     wrf_scenario_label: "Simulation Scenario",
     wrf_scen_1: "Wildfire Smoke (Riau & Sumatera)",
@@ -1082,17 +1082,34 @@ window.runWrfSimulationAnimation = function() {
   draw();
 };
 
+// Preload Satellite Map Assets for WRF-Chem Canvas
+const mapSumatraImg = new Image();
+mapSumatraImg.src = 'assets/images/map_sumatra.png';
+
+const mapJakartaImg = new Image();
+mapJakartaImg.src = 'assets/images/map_jakarta.png';
+
 // Geographic Map Renderer Function
 function drawWrfGeographicMap(ctx, canvas, scenario) {
   const w = canvas.width;
   const h = canvas.height;
 
-  // Ocean Base Color
   ctx.fillStyle = '#081714';
   ctx.fillRect(0, 0, w, h);
 
+  // Draw Satellite Image Background if loaded
+  if (scenario === 'karhutla' && mapSumatraImg.complete && mapSumatraImg.naturalWidth !== 0) {
+    ctx.drawImage(mapSumatraImg, 0, 0, w, h);
+    ctx.fillStyle = 'rgba(6, 17, 13, 0.45)';
+    ctx.fillRect(0, 0, w, h);
+  } else if (scenario === 'jakarta' && mapJakartaImg.complete && mapJakartaImg.naturalWidth !== 0) {
+    ctx.drawImage(mapJakartaImg, 0, 0, w, h);
+    ctx.fillStyle = 'rgba(6, 17, 13, 0.45)';
+    ctx.fillRect(0, 0, w, h);
+  }
+
   // Lat/Long Coordinate Grid lines
-  ctx.strokeStyle = 'rgba(16, 185, 129, 0.12)';
+  ctx.strokeStyle = 'rgba(16, 185, 129, 0.18)';
   ctx.lineWidth = 1;
   ctx.setLineDash([4, 4]);
 
@@ -1108,126 +1125,45 @@ function drawWrfGeographicMap(ctx, canvas, scenario) {
     ctx.lineTo(w, y);
     ctx.stroke();
   }
-  ctx.setLineDash([]); // Reset line dash
-
-  // Draw Landmasses & Coastlines based on scenario
-  ctx.fillStyle = '#112b23'; // Land color
-  ctx.strokeStyle = '#2dd4bf'; // Coastline stroke
-  ctx.lineWidth = 1.5;
+  ctx.setLineDash([]);
 
   if (scenario === 'karhutla') {
-    // --- MAP 1: SUMATRA & RIAU PROVINCE ---
-    // Sumatra Island Contour
-    ctx.beginPath();
-    ctx.moveTo(0, 40);
-    ctx.lineTo(120, 20);
-    ctx.lineTo(280, 100);
-    ctx.lineTo(450, 220);
-    ctx.lineTo(600, 320);
-    ctx.lineTo(0, 320);
-    ctx.closePath();
-    ctx.fill();
-    ctx.stroke();
-
-    // Malacca Peninsula (Malaysia Coastline Top-Right)
-    ctx.beginPath();
-    ctx.moveTo(350, 0);
-    ctx.lineTo(550, 0);
-    ctx.lineTo(700, 120);
-    ctx.lineTo(700, 0);
-    ctx.closePath();
-    ctx.fill();
-    ctx.stroke();
-
-    // Straits Label
     ctx.fillStyle = '#5eead4';
-    ctx.font = 'italic 11px sans-serif';
-    ctx.fillText('Selat Melaka / Malacca Strait', 330, 80);
-    ctx.fillText('Samudera Hindia (Indian Ocean)', 60, 280);
+    ctx.font = 'italic bold 11px sans-serif';
+    ctx.fillText('GIS Satellite Map: Riau & Sumatra Domain', 20, 25);
 
-    // City Dots & Labels
     drawMapCity(ctx, 140, 170, 'Pekanbaru (Riau)');
     drawMapCity(ctx, 280, 220, 'Padang');
     drawMapCity(ctx, 420, 270, 'Palembang');
     drawMapCity(ctx, 520, 90, 'Singapore / Johor');
 
-    // Coordinate Grid Text
-    ctx.fillStyle = 'rgba(167, 243, 208, 0.6)';
+    ctx.fillStyle = 'rgba(167, 243, 208, 0.7)';
     ctx.font = '9px monospace';
-    ctx.fillText('100°E', 65, 15);
-    ctx.fillText('102°E', 165, 15);
-    ctx.fillText('104°E', 265, 15);
-    ctx.fillText('106°E', 365, 15);
+    ctx.fillText('100°E', 65, 12);
+    ctx.fillText('102°E', 165, 12);
+    ctx.fillText('104°E', 265, 12);
+    ctx.fillText('106°E', 365, 12);
     ctx.fillText('02°N', 5, 45);
     ctx.fillText('00°N', 5, 125);
     ctx.fillText('02°S', 5, 205);
-
-  } else if (scenario === 'jakarta') {
-    // --- MAP 2: JAKARTA URBAN & JAVA SEA ---
-    // Java Island Coastline (Bottom half is land, top is Java Sea)
-    ctx.beginPath();
-    ctx.moveTo(0, 140);
-    ctx.bezierCurveTo(150, 120, 300, 180, 500, 130);
-    ctx.bezierCurveTo(600, 100, 680, 150, 700, 160);
-    ctx.lineTo(700, 320);
-    ctx.lineTo(0, 320);
-    ctx.closePath();
-    ctx.fill();
-    ctx.stroke();
-
-    // Labels
+  } else {
     ctx.fillStyle = '#5eead4';
-    ctx.font = 'italic 11px sans-serif';
-    ctx.fillText('Laut Jawa (Java Sea)', w / 2 - 50, 60);
-    ctx.fillText('Pulau Jawa (West Java)', w / 2 - 50, 260);
+    ctx.font = 'italic bold 11px sans-serif';
+    ctx.fillText('GIS Satellite Map: Jakarta Bay & Urban Domain', 20, 25);
 
-    // City Dots
     drawMapCity(ctx, 180, 190, 'Jakarta Pusat (Monas)');
     drawMapCity(ctx, 240, 160, 'Tanjung Priok');
     drawMapCity(ctx, 100, 210, 'Tangerang');
     drawMapCity(ctx, 320, 220, 'Bekasi');
     drawMapCity(ctx, 200, 280, 'Depok / Bogor');
 
-    // Coordinate Grid Text
-    ctx.fillStyle = 'rgba(167, 243, 208, 0.6)';
+    ctx.fillStyle = 'rgba(167, 243, 208, 0.7)';
     ctx.font = '9px monospace';
-    ctx.fillText('106.6°E', 65, 15);
-    ctx.fillText('106.8°E', 165, 15);
-    ctx.fillText('107.0°E', 265, 15);
+    ctx.fillText('106.6°E', 65, 12);
+    ctx.fillText('106.8°E', 165, 12);
+    ctx.fillText('107.0°E', 265, 12);
     ctx.fillText('06.0°S', 5, 45);
     ctx.fillText('06.2°S', 5, 125);
-
-  } else if (scenario === 'biochar') {
-    // --- MAP 3: TAIWAN ISLAND & NTU CAMPUS ---
-    // Taiwan Island Contour (Center vertical landmass)
-    ctx.beginPath();
-    ctx.moveTo(250, 40);
-    ctx.bezierCurveTo(340, 60, 360, 180, 310, 280);
-    ctx.bezierCurveTo(280, 310, 220, 280, 200, 200);
-    ctx.bezierCurveTo(190, 120, 210, 50, 250, 40);
-    ctx.closePath();
-    ctx.fill();
-    ctx.stroke();
-
-    // Labels
-    ctx.fillStyle = '#5eead4';
-    ctx.font = 'italic 11px sans-serif';
-    ctx.fillText('Taiwan Strait (Selat Taiwan)', 60, 160);
-    ctx.fillText('Pacific Ocean (Samudera Pasifik)', 420, 160);
-
-    // City Dots
-    drawMapCity(ctx, 220, 120, 'Taipei (NTU Campus)');
-    drawMapCity(ctx, 250, 170, 'Taichung');
-    drawMapCity(ctx, 280, 230, 'Kaohsiung');
-
-    // Coordinate Grid Text
-    ctx.fillStyle = 'rgba(167, 243, 208, 0.6)';
-    ctx.font = '9px monospace';
-    ctx.fillText('120°E', 65, 15);
-    ctx.fillText('121.5°E', 220, 15);
-    ctx.fillText('123°E', 365, 15);
-    ctx.fillText('25.0°N', 5, 45);
-    ctx.fillText('23.5°N', 5, 125);
   }
 }
 

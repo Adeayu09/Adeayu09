@@ -143,7 +143,7 @@
 
         <!-- Admin Login Button -->
         <button class="btn btn-primary btn-sm" id="openLoginBtn" onclick="openLoginModal()">
-          <i class="fa-solid fa-user-lock"></i> <span id="loginBtnText" data-i18n="btn_login">Login Admin</span>
+          <i class="fa-solid fa-user-lock"></i> <span id="loginBtnText" data-i18n="btn_login">Login</span>
         </button>
 
         <!-- Mobile Drawer Menu Toggle -->
@@ -189,17 +189,15 @@
 
         <div class="hero-avatar-wrapper">
           <div class="avatar-card">
-            <div class="avatar-img-frame">
-              <img id="profileAvatarImg" src="assets/images/profile.jpg" alt="Ade Ayu Oktaviana @ NTU Campus">
-            </div>
-            <div class="avatar-badge-float">
-              <div class="dot-online"></div>
-              <span data-i18n="avatar_status">Aktif Meneliti & Berkolaborasi</span>
-            </div>
-            <div class="avatar-badge-float top-right">
-              <i class="fa-solid fa-building-columns" style="color: var(--primary);"></i>
-              <span>National Taiwan University</span>
-            </div>
+            <img id="profileAvatarImg" src="assets/images/profile.jpg" alt="Ade Ayu Oktaviana @ NTU Campus">
+          </div>
+          <div class="avatar-badge-float bottom-badge">
+            <div class="dot-online"></div>
+            <span data-i18n="avatar_status">Aktif Meneliti & Berkolaborasi</span>
+          </div>
+          <div class="avatar-badge-float top-right-badge">
+            <i class="fa-solid fa-building-columns" style="color: var(--primary);"></i>
+            <span>National Taiwan University</span>
           </div>
         </div>
       </div>
@@ -259,10 +257,10 @@
         <div class="section-title">
           <span class="badge-pill rose" data-i18n="wrf_subtitle"><i class="fa-solid fa-flask"></i> Simulasi Interaktif WRF-Chem</span>
           <h2 data-i18n="wrf_title">WRF-Chem Air Quality & Dispersion Simulator</h2>
-          <p data-i18n="wrf_desc">Visualisasi numerik sebaran asap karhutla, pencemar udara, dan adsorpsi karbon berdasarkan hasil publikasi ilmiah Ade Ayu Oktaviana (JTL 2025).</p>
+          <p data-i18n="wrf_desc">Visualisasi numerik sebaran asap karhutla dan pencemar udara berbasis peta satelit geografis (JTL 2025).</p>
         </div>
 
-        <div style="display: grid; grid-template-columns: 320px 1fr; gap: 2rem; align-items: start;">
+        <div class="wrf-sim-grid">
           <!-- Controls Box -->
           <div style="background: var(--bg-card); padding: 1.75rem; border-radius: var(--radius-lg); border: 1px solid var(--border-color); box-shadow: var(--shadow-md);">
             <h3 style="font-size: 1.15rem; margin-bottom: 1.25rem; display: flex; align-items: center; gap: 0.5rem;">
@@ -273,8 +271,7 @@
               <label style="font-size: 0.85rem;" data-i18n="wrf_scenario_label">Skenario Simulasi</label>
               <select id="wrfScenario" class="form-control" onchange="updateWrfSim()">
                 <option value="karhutla" data-i18n="wrf_scen_1">Asap Karhutla (Riau & Sumatera)</option>
-                <option value="jakarta" data-i18n="wrf_scen_2">Dispersi PM2.5 Perkotaan Jakarta</option>
-                <option value="biochar" data-i18n="wrf_scen_3">Adsorpsi CO2 & Biochar Sequestration</option>
+                <option value="jakarta" data-i18n="wrf_scen_2">Dispersi PM2.5 Perkotaan (Jakarta)</option>
               </select>
             </div>
 
@@ -550,7 +547,11 @@
 
       <div class="footer-bottom">
         <div>&copy; 2026 Ade Ayu Oktaviana. All rights reserved.</div>
-        <div></div>
+        <div>
+          <button class="btn btn-outline btn-sm" onclick="openLoginModal()">
+            <i class="fa-solid fa-user-lock"></i> <span data-i18n="btn_login">Login</span>
+          </button>
+        </div>
       </div>
 
     </div>

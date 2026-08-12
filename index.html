@@ -301,8 +301,8 @@
               </select>
             </div>
 
-            <button type="button" class="btn btn-primary" style="width: 100%; margin-top: 0.5rem;" onclick="runWrfSimulationAnimation()">
-              <i class="fa-solid fa-play"></i> <span data-i18n="wrf_btn_run">Jalankan Simulasi</span>
+            <button type="button" class="btn btn-primary" id="wrfRunBtn" style="width: 100%; margin-top: 0.5rem;" onclick="toggleWrfSimulationAnimation()">
+              <i class="fa-solid fa-play" id="wrfRunBtnIcon"></i> <span id="wrfRunBtnText" data-i18n="wrf_btn_run">Jalankan Simulasi</span>
             </button>
           </div>
 
@@ -310,10 +310,13 @@
           <div style="background: var(--bg-card); padding: 1.75rem; border-radius: var(--radius-lg); border: 1px solid var(--border-color); box-shadow: var(--shadow-md);">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
               <div style="display: flex; align-items: center; gap: 0.6rem;">
-                <div class="dot-online"></div>
+                <div class="dot-online" id="wrfDotOnline" style="background: var(--accent-warning); box-shadow: none; animation: none;"></div>
                 <h4 id="wrfSimStatusTitle" style="font-size: 1.1rem;">WRF-Chem Real-time Plume Dispersion Canvas</h4>
               </div>
-              <span class="badge-pill" id="wrfMechBadge">GEOS-Chem Mechanism</span>
+              <div style="display: flex; gap: 0.5rem; align-items: center;">
+                <span class="badge-pill" id="wrfStatusIndicator" style="background: rgba(245,158,11,0.15); color: #f59e0b; border-color: rgba(245,158,11,0.3);"><i class="fa-solid fa-circle-pause"></i> Siap (Sentuh / Klik Peta)</span>
+                <span class="badge-pill" id="wrfMechBadge">GEOS-Chem Mechanism</span>
+              </div>
             </div>
 
             <!-- Canvas Visualization -->

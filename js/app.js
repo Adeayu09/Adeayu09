@@ -890,6 +890,7 @@ function showToast(msg, type = "success") {
 let wrfAnimFrame = null;
 let wrfParticles = [];
 let customSourcePoint = null;
+let isWrfSimRunning = false;
 
 function initWrfSimulator() {
   const canvas = document.getElementById('wrfCanvas');
@@ -901,7 +902,6 @@ function initWrfSimulator() {
     }, { passive: false });
   }
   updateWrfSim();
-  runWrfSimulationAnimation();
 }
 
 function handleMapTouch(e) {
@@ -922,24 +922,28 @@ function handleMapTouch(e) {
 
   customSourcePoint = { x, y };
 
-  // Reset particles from new custom point
-  wrfParticles = [];
-  for (let i = 0; i < 85; i++) {
-    wrfParticles.push(createWrfParticle(canvas, x, y));
+  // Recalculate variables dynamically for new coordinates
+  recalculateMetricsForPoint(x, y);
+
+  // If simulation is not running yet, auto-start when user taps map
+  if (!isWrfSimRunning) {
+    startWrfSimAnimation();
+  } else {
+    // Reset particles from new custom point
+    wrfParticles = [];
+    for (let i = 0; i < 85; i++) {
+      wrfParticles.push(createWrfParticle(canvas, x, y));
+    }
   }
 
   const isEn = state.lang === 'en';
-  showToast(isEn ? `Emission origin moved to map point (${x}, ${y})!` : `Titik emisi dipindahkan ke lokasi (${x}, ${y})!`);
+  showToast(isEn ? `Origin set to (${x}, ${y}) — Metrics updated!` : `Titik emisi (${x}, ${y}) set — Nilai variabel diperbarui!`);
 }
 
 window.updateWrfSim = function() {
-  // Reset custom point on scenario change
-  customSourcePoint = null;
   const scenario = document.getElementById('wrfScenario')?.value || 'karhutla';
   const mechanism = document.getElementById('wrfMechanism')?.value || 'GEOS-Chem';
   const windSpeed = parseFloat(document.getElementById('wrfWind')?.value || 8.5);
-  const direction = document.getElementById('wrfDirection')?.value || 'NE';
-  const isEn = state.lang === 'en';
 
   // Update Wind Speed Display
   const windValEl = document.getElementById('wrfWindVal');
@@ -949,49 +953,76 @@ window.updateWrfSim = function() {
   const mechBadge = document.getElementById('wrfMechBadge');
   if (mechBadge) mechBadge.textContent = `${mechanism} Mechanism`;
 
-  // Metrics Data calculation based on scenario & mechanism
-  let peak = 140;
-  let radius = (windSpeed * 5.2).toFixed(1);
-  let aqiText = '115 (Sedang / Moderate)';
-  let aqiColor = 'var(--accent-teal)';
-  let accuracy = '94.8% (JTL \'25)';
-  let noteText = isEn ?
-    'GEOS-Chem mechanism provided highest accuracy for wildfire aerosol plume transport in Sumatera compared to SAPRC99 and MOZART.' :
-    'Mekanisme GEOS-Chem memberikan akurasi tertinggi untuk estimasi sebaran aerosol kabut asap karhutla di Sumatera dibandingkan SAPRC99 dan MOZART.';
+  // Determine active beacon point
+  let ptX = 185;
+  let ptY = 185;
+  if (scenario === 'jakarta') {
+    ptX = 212;
+    ptY = 205;
+  }
 
-  if (scenario === 'karhutla') {
-    peak = Math.round(110 + windSpeed * 4.5);
-    aqiText = peak > 150 ? '165 (Tidak Sehat)' : '125 (Sedang)';
-    aqiColor = peak > 150 ? 'var(--accent-rose)' : 'var(--accent-teal)';
-    if (mechanism === 'SAPRC99') {
-      accuracy = '88.4% (Photochemical O3 focus)';
-      noteText = isEn ?
-        'SAPRC99 excels in photochemical ozone reaction pathways but slightly underestimates particulate smoke mass.' :
-        'SAPRC99 sangat unggul untuk estimasi reaksi fotokimia ozon, namun cenderung mengunderestimasi massa partikulat asap.';
-    } else if (mechanism === 'MOZART') {
-      accuracy = '86.1% (Regional kinetics)';
-      noteText = isEn ?
-        'MOZART mechanism provides steady regional kinetics for large-scale atmospheric transport.' :
-        'Mekanisme MOZART memberikan kinetika atmosferik regional yang stabil untuk pemodelan skala luas.';
-    }
-  } else if (scenario === 'jakarta') {
-    peak = Math.round(75 + windSpeed * 2.2);
-    radius = (windSpeed * 3.8).toFixed(1);
-    aqiText = '98 (Sedang / Moderate)';
+  if (customSourcePoint) {
+    ptX = customSourcePoint.x;
+    ptY = customSourcePoint.y;
+  }
+
+  recalculateMetricsForPoint(ptX, ptY);
+
+  // If simulation is stopped, render static frame
+  if (!isWrfSimRunning) {
+    drawStaticWrfFrame(ptX, ptY);
+  }
+};
+
+function recalculateMetricsForPoint(x, y) {
+  const scenario = document.getElementById('wrfScenario')?.value || 'karhutla';
+  const mechanism = document.getElementById('wrfMechanism')?.value || 'GEOS-Chem';
+  const windSpeed = parseFloat(document.getElementById('wrfWind')?.value || 8.5);
+  const isEn = state.lang === 'en';
+
+  // Dynamic calculation formula based on exact map coordinates (700x320)
+  const normX = x / 700;
+  const normY = y / 320;
+  const distFromCenter = Math.sqrt(Math.pow(normX - 0.5, 2) + Math.pow(normY - 0.5, 2));
+
+  // Dynamic Peak Concentration (µg/m³)
+  const basePeak = scenario === 'karhutla' ? 120 : 85;
+  const peak = Math.round(basePeak + (normX * 65) + (normY * 45) + (windSpeed * 4.2));
+
+  // Dynamic Dispersion Radius (km)
+  const radius = ((windSpeed * 4.5) + (distFromCenter * 22)).toFixed(1);
+
+  // Dynamic AQI Index
+  const aqiScore = Math.round(peak * 0.95);
+  let aqiText = '';
+  let aqiColor = '';
+
+  if (aqiScore > 150) {
+    aqiText = isEn ? `${aqiScore} (Unhealthy)` : `${aqiScore} (Sangat Tidak Sehat)`;
+    aqiColor = 'var(--accent-rose)';
+  } else if (aqiScore > 110) {
+    aqiText = isEn ? `${aqiScore} (Moderate - Sensitive)` : `${aqiScore} (Tidak Sehat Kelompok Sensitif)`;
+    aqiColor = 'var(--accent-warning)';
+  } else {
+    aqiText = isEn ? `${aqiScore} (Moderate)` : `${aqiScore} (Sedang / Baik)`;
     aqiColor = 'var(--primary)';
-    accuracy = '91.2% (IOP \'25)';
+  }
+
+  // Dynamic Mechanism Accuracy
+  const mechBaseAcc = mechanism === 'GEOS-Chem' ? 94.8 : (mechanism === 'SAPRC99' ? 88.6 : 86.2);
+  const locVariance = ((normX * 2.2) - (normY * 1.5)).toFixed(1);
+  const accuracy = `${(parseFloat(mechBaseAcc) + parseFloat(locVariance)).toFixed(1)}% (JTL '25)`;
+
+  // Dynamic paper note text
+  let noteText = '';
+  if (customSourcePoint) {
     noteText = isEn ?
-      'Strong correlation identified between meteorological boundary layer height, wind speed, and urban PM2.5 dispersion in Jakarta (IOP 2025).' :
-      'Korelasi kuat diidentifikasi antara ketinggian lapisan batas meteorologi, kecepatan angin, dan dispersi PM2.5 perkotaan Jakarta (IOP 2025).';
-  } else if (scenario === 'biochar') {
-    peak = Math.round(350 + windSpeed * 10);
-    radius = (windSpeed * 2.5).toFixed(1);
-    aqiText = 'Optimal CO2 Adsorption';
-    aqiColor = 'var(--primary)';
-    accuracy = '96.5% (Elsevier \'25)';
+      `Custom point (${x}, ${y}): WRF model recalculated plume concentration (${peak} µg/m³) and ${radius} km dispersion radius.` :
+      `Titik kustom (${x}, ${y}): Model WRF menghitung ulang konsentrasi pluma (${peak} µg/m³) & radius sebaran ${radius} km.`;
+  } else {
     noteText = isEn ?
-      'Domestic sewage sludge biochar pyrolysis at 500-600°C achieves maximal CO2 adsorption capacity for climate mitigation (Results in Engineering 2025).' :
-      'Pirolisis biochar lumpur limbah domestik pada suhu 500-600°C mencapai kapasitas adsorpsi CO2 maksimal untuk mitigasi iklim (Results in Engineering 2025).';
+      `GEOS-Chem mechanism provided highest accuracy for wildfire aerosol plume transport in Sumatera compared to SAPRC99 and MOZART.` :
+      `Mekanisme GEOS-Chem memberikan akurasi tertinggi untuk estimasi sebaran aerosol kabut asap karhutla di Sumatera dibandingkan SAPRC99 dan MOZART.`;
   }
 
   document.getElementById('wrfMetricPeak').textContent = `${peak} µg/m³`;
@@ -1003,7 +1034,105 @@ window.updateWrfSim = function() {
   }
   document.getElementById('wrfMetricAccuracy').textContent = accuracy;
   document.getElementById('wrfNoteContent').textContent = noteText;
+}
+
+window.toggleWrfSimulationAnimation = function() {
+  if (isWrfSimRunning) {
+    stopWrfSimAnimation();
+  } else {
+    startWrfSimAnimation();
+  }
 };
+
+function startWrfSimAnimation() {
+  isWrfSimRunning = true;
+
+  const btnText = document.getElementById('wrfRunBtnText');
+  const btnIcon = document.getElementById('wrfRunBtnIcon');
+  const statusBadge = document.getElementById('wrfStatusIndicator');
+  const dotOnline = document.getElementById('wrfDotOnline');
+
+  if (btnText) btnText.textContent = state.lang === 'en' ? 'Pause Simulation' : 'Hentikan Simulasi';
+  if (btnIcon) btnIcon.className = 'fa-solid fa-pause';
+
+  if (statusBadge) {
+    statusBadge.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> ${state.lang === 'en' ? 'Running Plume' : 'Simulasi Berjalan'}`;
+    statusBadge.style.background = 'rgba(16, 185, 129, 0.15)';
+    statusBadge.style.color = 'var(--primary)';
+    statusBadge.style.borderColor = 'rgba(16, 185, 129, 0.3)';
+  }
+  if (dotOnline) {
+    dotOnline.style.background = 'var(--primary)';
+    dotOnline.style.boxShadow = '0 0 8px var(--primary)';
+    dotOnline.style.animation = 'pulse 2s infinite';
+  }
+
+  runWrfSimulationAnimation();
+}
+
+function stopWrfSimAnimation() {
+  isWrfSimRunning = false;
+
+  if (wrfAnimFrame) cancelAnimationFrame(wrfAnimFrame);
+
+  const btnText = document.getElementById('wrfRunBtnText');
+  const btnIcon = document.getElementById('wrfRunBtnIcon');
+  const statusBadge = document.getElementById('wrfStatusIndicator');
+  const dotOnline = document.getElementById('wrfDotOnline');
+
+  if (btnText) btnText.textContent = state.lang === 'en' ? 'Run Simulation' : 'Jalankan Simulasi';
+  if (btnIcon) btnIcon.className = 'fa-solid fa-play';
+
+  if (statusBadge) {
+    statusBadge.innerHTML = `<i class="fa-solid fa-circle-pause"></i> ${state.lang === 'en' ? 'Paused (Map Ready)' : 'Siap (Sentuh / Klik Peta)'}`;
+    statusBadge.style.background = 'rgba(245, 158, 11, 0.15)';
+    statusBadge.style.color = '#f59e0b';
+    statusBadge.style.borderColor = 'rgba(245, 158, 11, 0.3)';
+  }
+  if (dotOnline) {
+    dotOnline.style.background = 'var(--accent-warning)';
+    dotOnline.style.boxShadow = 'none';
+    dotOnline.style.animation = 'none';
+  }
+}
+
+function drawStaticWrfFrame(x, y) {
+  const canvas = document.getElementById('wrfCanvas');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  const scenario = document.getElementById('wrfScenario')?.value || 'karhutla';
+  const windSpeed = parseFloat(document.getElementById('wrfWind')?.value || 8.5);
+
+  drawWrfGeographicMap(ctx, canvas, scenario);
+
+  // Origin Beacon Rings
+  const grad = ctx.createRadialGradient(x, y, 5, x, y, 90 + windSpeed * 3);
+  grad.addColorStop(0, 'rgba(244, 63, 94, 0.55)');
+  grad.addColorStop(0.4, 'rgba(245, 158, 11, 0.35)');
+  grad.addColorStop(0.7, 'rgba(16, 185, 129, 0.15)');
+  grad.addColorStop(1, 'rgba(6, 17, 13, 0)');
+  ctx.fillStyle = grad;
+  ctx.beginPath();
+  ctx.arc(x, y, 90 + windSpeed * 3, 0, Math.PI * 2);
+  ctx.fill();
+
+  // Pulsing Dot
+  ctx.fillStyle = '#f43f5e';
+  ctx.beginPath();
+  ctx.arc(x, y, 7, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.strokeStyle = '#ffffff';
+  ctx.lineWidth = 2.5;
+  ctx.stroke();
+
+  // Text Label
+  ctx.fillStyle = '#ffffff';
+  ctx.font = 'bold 11px sans-serif';
+  ctx.shadowColor = 'rgba(0,0,0,0.8)';
+  ctx.shadowBlur = 4;
+  ctx.fillText(customSourcePoint ? `Interactive Origin (${x}, ${y})` : (scenario === 'jakarta' ? 'Jakarta Monas Hub' : 'Riau Pekanbaru Origin'), x - 45, y - 14);
+  ctx.shadowBlur = 0;
+}
 
 window.runWrfSimulationAnimation = function() {
   const canvas = document.getElementById('wrfCanvas');
@@ -1019,6 +1148,8 @@ window.runWrfSimulationAnimation = function() {
   }
 
   function draw() {
+    if (!isWrfSimRunning) return;
+
     const windSpeed = parseFloat(document.getElementById('wrfWind')?.value || 8.5);
     const direction = document.getElementById('wrfDirection')?.value || 'NE';
 

@@ -76,14 +76,5 @@ Saya adalah **Lulusan Magister dan Kandidat Ph.D. di bidang Teknik Lingkungan** 
 
 </div>
 
----
 
-### 🚀 Web Portfolio & GitHub Pages Deployment
-
-Website portofolio ini dibangun dengan arsitektur **Clean Environmental Engineering Aesthetic**, **Bilingual (Indonesian & English)**, **Blogspot System**, serta **Admin CMS** bawaan untuk pengelolaan konten dinamis secara privat oleh pemilik.
-
-#### Cara Deploy Otomatis ke GitHub Pages (CI/CD):
-1. Push repository ini ke GitHub: `git push origin main`
-2. Buka **Settings** repository di GitHub -> **Pages** -> Pilih source **GitHub Actions**.
-3. Workflow CI/CD (`.github/workflows/deploy.yml`) akan secara otomatis mempublikasikan website di URL: `https://Adeayu09.github.io`
 

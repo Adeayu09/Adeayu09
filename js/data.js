@@ -14,7 +14,8 @@ export const defaultProfile = {
   location: "Pringsewu, Lampung / Surabaya / Taiwan",
   email: "adeayuoktaviana123@gmail.com",
   phone: "+62 858-4033-4370",
-  avatar: "assets/images/profile.png",
+  avatar: "assets/images/profile.jpg",
+
   linkedin: "https://id.linkedin.com/in/ade-ayu-oktaviana-b20981252",
   scholar: "https://scholar.google.com/citations?user=UFx9LFYAAAAJ&hl=en",
   researchgate: "https://www.researchgate.net/profile/Ade-Ayu-Oktaviana",

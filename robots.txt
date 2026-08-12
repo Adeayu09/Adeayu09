@@ -1,0 +1,8 @@
+User-agent: *
+Allow: /
+
+# Disallow any admin or internal paths if added in future
+Disallow: /.github/
+
+# Sitemap
+Sitemap: https://adeayu09.github.io/sitemap.xml

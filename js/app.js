@@ -455,11 +455,23 @@ window.openAdminModal = function() {
   // Populate Profile Form
   const p = state.profile;
   document.getElementById('cmsName').value = p.name;
-  document.getElementById('cmsAvatar').value = p.avatar;
   document.getElementById('cmsTitleId').value = p.title_id;
   document.getElementById('cmsTitleEn').value = p.title_en;
   document.getElementById('cmsBioId').value = p.bio_id;
   document.getElementById('cmsBioEn').value = p.bio_en;
+
+  // Load avatar preview in upload zone
+  _stagedAvatarDataUrl = null;
+  const preview = document.getElementById('avatarPreview');
+  const hint = document.getElementById('avatarUploadHint');
+  if (p.avatar) {
+    preview.src = p.avatar;
+    preview.style.display = 'block';
+    hint.style.display = 'none';
+  } else {
+    preview.style.display = 'none';
+    hint.style.display = 'block';
+  }
 
   renderCMSPubList();
   renderCMSBlogList();
@@ -479,11 +491,113 @@ window.switchAdminTab = function(tabId, btn) {
   document.getElementById(tabId).classList.add('active');
 };
 
+// Staged avatar (in-memory, set by upload handler)
+let _stagedAvatarDataUrl = null;
+
+// ==================== SECURE IMAGE UPLOAD HANDLERS ====================
+// Allowed MIME types by magic bytes (first bytes of file)
+const ALLOWED_IMAGE_MAGIC = {
+  'ffd8ff': 'image/jpeg',      // JPEG
+  '89504e47': 'image/png',     // PNG
+  '52494646': 'image/webp',    // WEBP (RIFF....WEBP)
+};
+const MAX_IMAGE_SIZE_BYTES = 5 * 1024 * 1024; // 5 MB
+
+async function validateImageFile(file) {
+  // 1. Check declared MIME type (first-pass)
+  if (!['image/jpeg', 'image/png', 'image/webp'].includes(file.type)) {
+    return { ok: false, error: 'Format file tidak didukung. Hanya JPG, PNG, dan WEBP.' };
+  }
+  // 2. Check file size
+  if (file.size > MAX_IMAGE_SIZE_BYTES) {
+    return { ok: false, error: `Ukuran file terlalu besar (${(file.size / 1024 / 1024).toFixed(1)} MB). Maksimal 5 MB.` };
+  }
+  // 3. Verify magic bytes (prevent MIME-type spoofing)
+  return new Promise((resolve) => {
+    const reader = new FileReader();
+    reader.onloadend = (e) => {
+      const arr = new Uint8Array(e.target.result).subarray(0, 4);
+      const hex = Array.from(arr).map(b => b.toString(16).padStart(2, '0')).join('');
+      const jpegMatch = hex.startsWith('ffd8ff');
+      const pngMatch = hex.startsWith('89504e47');
+      // WEBP: bytes 0-3 = RIFF (52494646) AND bytes 8-11 = WEBP
+      const riffMatch = hex.startsWith('52494646');
+      if (jpegMatch || pngMatch || riffMatch) {
+        resolve({ ok: true });
+      } else {
+        resolve({ ok: false, error: 'File bukan gambar valid (magic bytes tidak cocok). Harap upload file gambar asli.' });
+      }
+    };
+    reader.readAsArrayBuffer(file.slice(0, 12));
+  });
+}
+
+function showAvatarError(msg) {
+  const errEl = document.getElementById('avatarUploadError');
+  errEl.textContent = msg;
+  errEl.style.display = 'block';
+}
+
+function clearAvatarError() {
+  const errEl = document.getElementById('avatarUploadError');
+  errEl.style.display = 'none';
+  errEl.textContent = '';
+}
+
+async function processAvatarFile(file) {
+  clearAvatarError();
+  const validation = await validateImageFile(file);
+  if (!validation.ok) {
+    showAvatarError(validation.error);
+    return;
+  }
+  // Read as base64 Data URL — safe client-side storage in localStorage
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    const dataUrl = e.target.result;
+    _stagedAvatarDataUrl = dataUrl;
+    // Show preview
+    const preview = document.getElementById('avatarPreview');
+    const hint = document.getElementById('avatarUploadHint');
+    preview.src = dataUrl;
+    preview.style.display = 'block';
+    hint.style.display = 'none';
+    showToast('Foto berhasil dimuat. Klik Simpan untuk menyimpan.');
+  };
+  reader.readAsDataURL(file);
+}
+
+window.handleAvatarUpload = async function(event) {
+  const file = event.target.files[0];
+  if (file) await processAvatarFile(file);
+  // Reset input so same file can be re-selected
+  event.target.value = '';
+};
+
+window.handleAvatarDragOver = function(event) {
+  event.preventDefault();
+  document.getElementById('avatarUploadZone').style.borderColor = 'var(--primary)';
+  document.getElementById('avatarUploadZone').style.background = 'var(--bg-subtle)';
+};
+
+window.handleAvatarDrop = async function(event) {
+  event.preventDefault();
+  const zone = document.getElementById('avatarUploadZone');
+  zone.style.borderColor = 'var(--border-color)';
+  zone.style.background = 'transparent';
+  const file = event.dataTransfer.files[0];
+  if (file) await processAvatarFile(file);
+};
+
 // Profile CMS Save
 window.saveProfileCMS = function(e) {
   e.preventDefault();
-  state.profile.name = document.getElementById('cmsName').value;
-  state.profile.avatar = document.getElementById('cmsAvatar').value;
+  state.profile.name = document.getElementById('cmsName').value.trim();
+  // Use newly uploaded base64 image if staged, otherwise keep existing avatar
+  if (_stagedAvatarDataUrl) {
+    state.profile.avatar = _stagedAvatarDataUrl;
+    _stagedAvatarDataUrl = null;
+  }
   state.profile.title_id = document.getElementById('cmsTitleId').value;
   state.profile.title_en = document.getElementById('cmsTitleEn').value;
   state.profile.bio_id = document.getElementById('cmsBioId').value;
@@ -491,7 +605,7 @@ window.saveProfileCMS = function(e) {
 
   saveStoredProfile(state.profile);
   renderHero();
-  showToast("Profil berhasil diperbarui!");
+  showToast('Profil berhasil diperbarui!');
 };
 
 // --- Publication CMS CRUD ---

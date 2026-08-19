@@ -1,12 +1,41 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
-        xmlns:xhtml="http://www.w3.org/1999/xhtml">
+        xmlns:xhtml="http://www.w3.org/1999/xhtml"
+        xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
   <url>
     <loc>https://adeayu09.github.io/</loc>
-    <lastmod>2026-08-12</lastmod>
-    <changefreq>monthly</changefreq>
+    <lastmod>2026-08-19</lastmod>
+    <changefreq>weekly</changefreq>
     <priority>1.0</priority>
     <xhtml:link rel="alternate" hreflang="id" href="https://adeayu09.github.io/"/>
     <xhtml:link rel="alternate" hreflang="en" href="https://adeayu09.github.io/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://adeayu09.github.io/"/>
+    
+    <!-- Google Image Sitemap Extension -->
+    <image:image>
+      <image:loc>https://adeayu09.github.io/assets/images/profile.jpg</image:loc>
+      <image:title>Ade Ayu Oktaviana - Kandidat Ph.D. Teknik Lingkungan ITS &amp; Peneliti NTU Taiwan</image:title>
+      <image:caption>Foto profil profesional Ade Ayu Oktaviana, peneliti Carbon Capture dan pemodelan kualitas udara.</image:caption>
+    </image:image>
+    <image:image>
+      <image:loc>https://adeayu09.github.io/assets/images/biochar.png</image:loc>
+      <image:title>Riset Biochar &amp; Carbon Capture - Ade Ayu Oktaviana</image:title>
+      <image:caption>Pengembangan biochar dari limbah organik dan sludge limbah domestik untuk sekuestrasi CO2.</image:caption>
+    </image:image>
+    <image:image>
+      <image:loc>https://adeayu09.github.io/assets/images/wrf.png</image:loc>
+      <image:title>Pemodelan Dispersi Asap &amp; Kualitas Udara WRF-Chem</image:title>
+      <image:caption>Simulasi numerik sebaran asap karhutla dan pencemar atmosfer menggunakan WRF-Chem dan AERMOD.</image:caption>
+    </image:image>
+    <image:image>
+      <image:loc>https://adeayu09.github.io/assets/images/map_jakarta.png</image:loc>
+      <image:title>Peta Konsentrasi PM2.5 &amp; Kualitas Udara DKI Jakarta</image:title>
+      <image:caption>Analisis korelasi meteorologi dan konsentrasi PM2.5 di wilayah DKI Jakarta.</image:caption>
+    </image:image>
+    <image:image>
+      <image:loc>https://adeayu09.github.io/assets/images/map_sumatra.png</image:loc>
+      <image:title>Peta Sebaran Kebakaran Hutan dan Polutan Sumatera</image:title>
+      <image:caption>Simulasi sebaran asap karhutla dan ozon troposfer di wilayah Sumatera.</image:caption>
+    </image:image>
   </url>
 </urlset>

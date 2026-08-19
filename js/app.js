@@ -344,7 +344,7 @@ window.renderPublications = function() {
       </div>
       <p class="pub-abstract">${isEn ? p.abstract_en : p.abstract_id}</p>
       <div class="pub-actions">
-        <a href="${p.link}" target="_blank" class="btn btn-outline btn-sm">
+        <a href="${p.link}" target="_blank" rel="noopener noreferrer" class="btn btn-outline btn-sm" aria-label="${isEn ? 'Read publication article' : 'Baca artikel publikasi'}: ${p.title}">
           <i class="fa-solid fa-arrow-up-right-from-square"></i> ${isEn ? 'Read Article / Journal' : 'Baca Jurnal / Artikel'}
         </a>
       </div>
@@ -365,7 +365,7 @@ function renderBlogs() {
   grid.innerHTML = state.blogs.map(b => `
     <div class="blog-card">
       <div class="blog-img-wrapper">
-        <img src="${b.image}" alt="${isEn ? b.title_en : b.title_id}">
+        <img src="${b.image}" alt="${isEn ? b.title_en : b.title_id}" loading="lazy" decoding="async" width="600" height="340">
         <span class="badge-pill rose blog-cat-badge">${b.category}</span>
       </div>
       <div class="blog-body">
@@ -375,7 +375,7 @@ function renderBlogs() {
         </div>
         <h3>${isEn ? b.title_en : b.title_id}</h3>
         <p>${isEn ? b.excerpt_en : b.excerpt_id}</p>
-        <button class="btn btn-outline btn-sm" onclick="openBlogReader('${b.id}')">
+        <button class="btn btn-outline btn-sm" onclick="openBlogReader('${b.id}')" aria-label="${isEn ? 'Read full article' : 'Baca artikel lengkap'}: ${isEn ? b.title_en : b.title_id}">
           <i class="fa-solid fa-book-open"></i> ${isEn ? 'Read Article' : 'Baca Selengkapnya'}
         </button>
       </div>

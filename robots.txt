@@ -1,8 +1,29 @@
-User-agent: *
+# Robots.txt for Ade Ayu Oktaviana Portfolio (https://adeayu09.github.io/)
+User-agent: Googlebot
+Allow: /
+Allow: /assets/
+Allow: /css/
+Allow: /js/
+
+User-agent: Googlebot-Image
+Allow: /assets/images/
+Allow: /img/
+
+User-agent: Bingbot
 Allow: /
 
-# Disallow any admin or internal paths if added in future
-Disallow: /.github/
+User-agent: Twitterbot
+Allow: /
 
-# Sitemap
+User-agent: facebookexternalhit
+Allow: /
+
+User-agent: *
+Allow: /
+Disallow: /.github/
+Disallow: /.git/
+
+# Host and Sitemap reference
+Host: https://adeayu09.github.io
 Sitemap: https://adeayu09.github.io/sitemap.xml
+
